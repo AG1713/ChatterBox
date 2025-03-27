@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -60,5 +61,23 @@ dependencies {
 
     // Extra icons
     implementation(libs.androidx.material.icons.extended.android)
+
+    // Firebase
+    // BoM
+    implementation(platform(libs.firebase.bom))
+
+    // Firebase (analytics)
+    implementation(libs.firebase.analytics)
+
+    // Authentication
+    implementation(libs.firebase.auth)
+
+    // Dependencies for the Credential Manager libraries and specify their versions
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
+
+    // Koin (for dependency injection)
+    implementation(libs.koin.android)
 
 }
