@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">ChatterBox</string>
+    <string name="default_web_client_id">AIzaSyBB58u-XAdMPcFPHH3nlVU0TyVotaF0HpU</string>
 </resources>
