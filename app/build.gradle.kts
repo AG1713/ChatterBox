@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("com.google.gms.google-services")
+    kotlin("plugin.serialization") version "2.0.21"
 }
 
 android {
@@ -73,6 +74,9 @@ dependencies {
     // Firebase (analytics)
     implementation(libs.firebase.analytics)
 
+    // Firestore
+    implementation(libs.firebase.firestore)
+
     // Authentication
     implementation(libs.firebase.auth)
 
@@ -83,8 +87,16 @@ dependencies {
 
     // Koin (for dependency injection)
     implementation(libs.koin.android)
+    implementation (libs.koin.androidx.compose)
 
     // Google Auth idk
-    implementation (libs.play.services.auth)
+    implementation(libs.play.services.auth)
+
+    // Navigation
+    implementation(libs.navigation.compose)
+
+    // Serialization
+    // JSON serialization library, works with the Kotlin serialization plugin
+    implementation(libs.kotlinx.serialization.json)
 
 }

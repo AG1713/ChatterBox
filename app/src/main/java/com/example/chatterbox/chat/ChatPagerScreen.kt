@@ -1,9 +1,7 @@
-package com.example.chatterbox.chat.presentation
+package com.example.chatterbox.chat
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -29,13 +27,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
+import com.example.chatterbox.chat.users.presentation.UserProfileScreen
+import com.example.chatterbox.chat.users.presentation.UserViewModel
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ChatPagerScreen(modifier: Modifier = Modifier) {
+fun ChatPagerScreen(navController: NavController, modifier: Modifier = Modifier) {
 
     val scope = rememberCoroutineScope()
+    val userViewModel: UserViewModel = koinViewModel()
+    val userState = userViewModel.user.collectAsStateWithLifecycle()
 
     val tabs = listOf(
             TabItem(
@@ -57,7 +61,7 @@ fun ChatPagerScreen(modifier: Modifier = Modifier) {
                 unselectedIcon = Icons.Outlined.Person,
                 selectedIcon = Icons.Filled.Person,
             ) {
-                Sample()
+                UserProfileScreen(navController)
             },
         )
 
@@ -108,8 +112,7 @@ fun ChatPagerScreen(modifier: Modifier = Modifier) {
             state = pagerState,
             modifier = Modifier
                 .padding(padding)
-                .fillMaxSize()
-                .background(Color.Blue),
+                .fillMaxSize(),
 
         ) { index ->
             tabs[index].composable()
@@ -121,7 +124,7 @@ fun ChatPagerScreen(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun Sample(modifier: Modifier = Modifier) {
+fun Sample(modifier: Modifier = Modifier.background(Color.Gray)) {
     Text(text = "Page")
 }
 

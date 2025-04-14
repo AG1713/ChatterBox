@@ -8,6 +8,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,10 +23,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,21 +45,27 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.example.chatterbox.ChatPagerScreenObject
 import com.example.chatterbox.R
+import com.example.chatterbox.SignInScreenObject
+import com.example.chatterbox.chat.users.data.FirestoreUserRepository
 import com.example.compose.ChatterBoxTheme
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
+import org.koin.androidx.compose.koinViewModel
 
 const val TAG: String = "SignInScreen"
 
 @Composable
-fun SignInScreen(
-    authViewModel: AuthViewModel,
-    modifier: Modifier = Modifier) {
+fun SignInScreen(navController: NavController, modifier: Modifier = Modifier) {
 
+    val authViewModel = koinViewModel<AuthViewModel>()
     val context = LocalContext.current
-
     val googleSignInClient = GoogleSignIn.getClient(context, GoogleSignInOptions.DEFAULT_SIGN_IN)
 
 //    authViewModel.signOut() // Already there in MainActivity
@@ -85,6 +95,17 @@ fun SignInScreen(
 
         }
 
+    }
+
+    val authState by authViewModel.authState.collectAsState()
+
+    val navigateToChats by authViewModel.navigateToChat.collectAsStateWithLifecycle(null)
+    LaunchedEffect (navigateToChats){
+        navigateToChats?.let {
+            navController.navigate(ChatPagerScreenObject) {
+                popUpTo<SignInScreenObject> { inclusive = true }
+            }
+        }
     }
 
     ChatterBoxTheme {
@@ -130,6 +151,20 @@ fun SignInScreen(
                 }
             }
         }
+
+        if (authState == AuthState.Loading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.5f)) // faded background
+                    .clickable(enabled = false) {} // disables clicks
+                    .zIndex(1f), // ensures it's on top
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = Color.White)
+            }
+        }
+
 
     }
 

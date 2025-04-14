@@ -1,4 +1,4 @@
-package com.example.chatterbox.chat.domain
+package com.example.chatterbox.chat.users.domain
 
 import com.google.firebase.Timestamp
 

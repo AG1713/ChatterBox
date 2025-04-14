@@ -1,4 +1,4 @@
-package com.example.chatterbox.chat.presentation
+package com.example.chatterbox.chat.users.presentation
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,7 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.chatterbox.chat.domain.ChatRoom
+import com.example.chatterbox.chat.users.domain.ChatRoom
 import com.example.compose.ChatterBoxTheme
 import com.google.firebase.Timestamp
 
