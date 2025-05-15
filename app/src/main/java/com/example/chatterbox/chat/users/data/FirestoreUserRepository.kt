@@ -1,5 +1,6 @@
 package com.example.chatterbox.chat.users.data
 
+import android.util.Log
 import com.example.chatterbox.chat.users.domain.User
 import com.example.chatterbox.chat.users.domain.UserRepository
 import com.example.chatterbox.core.common.FirestoreCollections
@@ -33,13 +34,18 @@ class FirestoreUserRepository (
     }
 
     override suspend fun updateUserProfile(user: User) {
-        if (user.id != currentUserId){
-            // Just a basic check
-            return
-        }
-        val userDoc = firestore.collection(FirestoreCollections.USERS).document(currentUserId)
+        try {
+            if (user.id != currentUserId){
+                // Just a basic check
+                return
+            }
+            val userDoc = firestore.collection(FirestoreCollections.USERS).document(currentUserId)
 
-        userDoc.set(user)
+            userDoc.set(user)
+        }
+        catch (e: Exception){
+            Log.d("EXCEPTION", "culprit: ")
+        }
 
     }
 

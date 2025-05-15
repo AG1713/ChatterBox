@@ -8,12 +8,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.chatterbox.chat.users.domain.ChatRoom
-import com.example.compose.ChatterBoxTheme
+import com.example.chatterbox.ui.theme.ChatterBoxTheme
 import com.google.firebase.Timestamp
 
 @Composable

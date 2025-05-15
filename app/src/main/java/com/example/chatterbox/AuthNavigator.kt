@@ -11,7 +11,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import androidx.navigation.toRoute
 import com.example.chatterbox.auth.presentation.AuthViewModel
 import com.example.chatterbox.auth.presentation.SignInScreen
 import com.example.chatterbox.chat.ChatPagerScreen
@@ -58,7 +57,7 @@ fun AuthNavigator(modifier: Modifier = Modifier) {
             val userJson = entry.arguments?.getString("user")
             val oldUser = Json.decodeFromString<User>(Uri.decode(userJson))
 
-            EditProfileScreen(user = oldUser, navController)
+            EditProfileScreen(user1 = oldUser, navController)
 
         }
 

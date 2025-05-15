@@ -1,5 +1,6 @@
 package com.example.chatterbox.chat.users.presentation
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -25,40 +26,47 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.example.chatterbox.R
 import com.example.chatterbox.chat.users.domain.User
 import com.example.chatterbox.ui.components.RoundImage
-import com.example.compose.ChatterBoxTheme
-import kotlinx.coroutines.delay
+import com.example.chatterbox.ui.theme.ChatterBoxTheme
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun EditProfileScreen(user: User, navController: NavController?, modifier: Modifier = Modifier) {
+fun EditProfileScreen(user1: User, navController: NavController?, modifier: Modifier = Modifier) {
 
-//    val owner = LocalViewModelStoreOwner.current
-//    val userViewModel = koinViewModel<UserViewModel>(viewModelStoreOwner = owner!!)
+    val TAG = "EditProfileScreen"
+    val activityOwner = LocalContext.current.findActivity()?.viewModelStore
+    // Force scoping of the ViewModel to the Activity
+//    val userViewModel: UserViewModel = koinViewModel(
+//        viewModelStoreOwner = object : ViewModelStoreOwner {
+//            override val viewModelStore = activityOwner!!
+//        }
+//    )
     val userViewModel = koinViewModel<UserViewModel>()
+    val user by userViewModel.user.collectAsState()
     val loadState by userViewModel.loadState.collectAsStateWithLifecycle()
 
-    var username by remember { mutableStateOf(user.username) }
-    var description by remember { mutableStateOf(user.description) }
+    var username by remember { mutableStateOf(user.user!!.username) }
+    var description by remember { mutableStateOf(user.user!!.description) }
     // TODO: Edit this after adding the functionality of uploading the profile photo
-    var profilePhotoUrl by remember { mutableStateOf(user.profilePhotoUrl) }
+    var profilePhotoUrl by remember { mutableStateOf(user.user?.profilePhotoUrl) }
 
     LaunchedEffect(loadState) {
-        if (loadState is LoadState.Success) {
+        if (loadState == LoadState.Success) {
             navController?.popBackStack()
         }
     }
-
 
     Column(
         modifier = modifier
@@ -115,8 +123,10 @@ fun EditProfileScreen(user: User, navController: NavController?, modifier: Modif
 
             Button(
                 onClick = {
-                    val newUser = user.copy(username = username, description = description)
+                    Log.d(TAG, "Save changes clicked")
+                    val newUser = user.user!!.copy(username = username, description = description)
                     userViewModel.updateCurrentUser(newUser)
+                    Log.d(TAG, "Save changes onClick ended")
                 }
             ) {
                 Text("Save changes")

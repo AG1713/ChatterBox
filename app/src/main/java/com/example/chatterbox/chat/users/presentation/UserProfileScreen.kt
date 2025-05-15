@@ -1,25 +1,24 @@
 package com.example.chatterbox.chat.users.presentation
 
+import android.content.Context
+import android.content.ContextWrapper
 import android.net.Uri
 import android.text.format.DateUtils
 import android.util.Log
-import androidx.compose.foundation.Image
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
@@ -34,20 +33,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.example.chatterbox.EditProfileScreenObject
 import com.example.chatterbox.R
-import com.example.chatterbox.chat.users.domain.User
 import com.example.chatterbox.ui.components.RoundImage
-import com.example.compose.ChatterBoxTheme
-import com.google.firebase.Timestamp
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.koin.androidx.compose.koinViewModel
@@ -57,9 +53,16 @@ fun UserProfileScreen(
     navController: NavController?,
     modifier: Modifier = Modifier
 ) {
+
     val TAG = "UserProfileScreen"
 
-
+    val activityOwner = LocalContext.current.findActivity()?.viewModelStore
+    // Force scoping of the ViewModel to the Activity
+//    val userViewModel: UserViewModel = koinViewModel(
+//        viewModelStoreOwner = object : ViewModelStoreOwner {
+//            override val viewModelStore = activityOwner!!
+//        }
+//    )
     val userViewModel = koinViewModel<UserViewModel>()
     val userState by userViewModel.user.collectAsStateWithLifecycle()
 
@@ -86,6 +89,7 @@ fun UserProfileScreen(
                     onClick = {
                         val userJson = Json.encodeToString(userState.user)
                         val encodedUserJson = Uri.encode(userJson)
+                        userViewModel.resetLoadState()
                         navController?.navigate("edit_profile_screen/$encodedUserJson")
                     }
                 ) {
@@ -223,4 +227,10 @@ fun UserProfileScreenPreview(modifier: Modifier = Modifier) {
 //    }
 
 
+}
+
+fun Context.findActivity(): ComponentActivity? = when (this) {
+    is ComponentActivity -> this
+    is ContextWrapper -> baseContext.findActivity()
+    else -> null
 }

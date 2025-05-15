@@ -8,7 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.chatterbox.auth.presentation.AuthViewModel
-import com.example.compose.ChatterBoxTheme
+import com.example.chatterbox.ui.theme.ChatterBoxTheme
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : ComponentActivity() {

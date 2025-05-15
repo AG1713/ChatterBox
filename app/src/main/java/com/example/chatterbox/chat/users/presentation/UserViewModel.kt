@@ -32,37 +32,59 @@ class UserViewModel(
         getCurrentUser()
     }
 
+    public fun resetLoadState(){
+        _loadState.value = LoadState.Idle
+    }
+
     private fun getCurrentUser() {
         viewModelScope.launch {
 
-            _user.update {
-                it.copy(
-                    isLoading = true
-                )
-            }
+            try {
+                _user.update {
+                    it.copy(
+                        isLoading = true
+                    )
+                }
 
-            val profile = userRepository.getCurrentUserProfile()
-            Log.d(TAG, "getCurrentUser: $profile")
-            _user.update {
-                _user.value.copy(
-                    user = profile,
-                    isLoading = false
-                )
+                val profile = userRepository.getCurrentUserProfile()
+                Log.d(TAG, "getCurrentUser: $profile")
+                _user.update {
+                    _user.value.copy(
+                        user = profile,
+                        isLoading = false
+                    )
+                }
+                Log.d(TAG, "getCurrentUser: ${_user.value}")
             }
-            Log.d(TAG, "getCurrentUser: ${_user.value}")
+            catch (e: Exception){
+                Log.d("EXCEPTION", "culprit: ")
+            }
         }
     }
 
-    fun updateCurrentUser(user: User){
+    fun updateCurrentUser(user: User) {
+        Log.d(TAG, "Entered updateCurrentUser")
+
         viewModelScope.launch {
-            _loadState.value = LoadState.Loading
-            userRepository.updateUserProfile(user)
-            Log.d(TAG, "updateCurrentUser: $user")
-//            _user.value = _user.value.copy(user = user, isLoading = false)
-            getCurrentUser()
-            _loadState.value = LoadState.Success
+            Log.d(TAG, "Inside launch")
+
+            try {
+                _loadState.value = LoadState.Loading
+                Log.d(TAG, "Before updateUserProfile")
+
+                userRepository.updateUserProfile(user)
+
+                Log.d(TAG, "After updateUserProfile")
+
+                getCurrentUser()
+
+                _loadState.value = LoadState.Success
+            } catch (e: Exception) {
+                Log.e(TAG, "Error in updateCurrentUser", e)
+            }
         }
     }
+
 
 }
 

@@ -87,7 +87,7 @@ dependencies {
 
     // Koin (for dependency injection)
     implementation(libs.koin.android)
-    implementation (libs.koin.androidx.compose)
+    implementation(libs.koin.androidx.compose)
 
     // Google Auth idk
     implementation(libs.play.services.auth)

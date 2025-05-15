@@ -23,7 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.compose.ChatterBoxTheme
+import com.example.chatterbox.ui.theme.ChatterBoxTheme
 
 @Composable
 fun SignUpScreen(modifier: Modifier = Modifier) {
