@@ -5,5 +5,6 @@ import com.example.chatterbox.chat.users.domain.User
 interface UserRepository {
     suspend fun createUserProfileIfNotExists(user: User)
     suspend fun getCurrentUserProfile(): User?
+    suspend fun getUserProfile(id: String): User?
     suspend fun updateUserProfile(user: User)
 }

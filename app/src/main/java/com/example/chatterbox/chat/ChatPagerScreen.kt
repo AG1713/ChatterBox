@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.example.chatterbox.chat.userChats.presentation.UserChatsScreen
 import com.example.chatterbox.chat.users.presentation.UserProfileScreen
 import com.example.chatterbox.chat.users.presentation.UserViewModel
 import kotlinx.coroutines.launch
@@ -47,7 +48,7 @@ fun ChatPagerScreen(navController: NavController, modifier: Modifier = Modifier)
                 unselectedIcon = Icons.Outlined.Home,
                 selectedIcon = Icons.Filled.Home,
             ) {
-                Sample()
+                UserChatsScreen(navController = navController)
             },
             TabItem(
                 title = "Groups",

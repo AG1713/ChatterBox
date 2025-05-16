@@ -13,6 +13,8 @@ import kotlinx.coroutines.tasks.await
 class FirestoreUserRepository (
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
 ): UserRepository {
+    val TAG = "FirestoreUserRepository"
+
     val currentUserId: String
         get() = FirebaseAuth.getInstance().currentUser!!.uid
 
@@ -31,6 +33,17 @@ class FirestoreUserRepository (
     override suspend fun getCurrentUserProfile(): User? {
         return firestore.collection(FirestoreCollections.USERS).document(currentUserId).get(Source.SERVER)
             .await().toObject<User>()
+    }
+
+    override suspend fun getUserProfile(id: String): User? {
+        return try {
+            firestore.collection(FirestoreCollections.USERS).document().get()
+                .await().toObject<User>()
+        }
+        catch (e: Exception){
+            Log.d(TAG, "getUserProfile: ${e.message}")
+            null
+        }
     }
 
     override suspend fun updateUserProfile(user: User) {

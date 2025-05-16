@@ -14,6 +14,8 @@ import androidx.navigation.navArgument
 import com.example.chatterbox.auth.presentation.AuthViewModel
 import com.example.chatterbox.auth.presentation.SignInScreen
 import com.example.chatterbox.chat.ChatPagerScreen
+import com.example.chatterbox.chat.userChats.presentation.ChatScreen
+import com.example.chatterbox.chat.userChats.presentation.UserChatsScreen
 import com.example.chatterbox.chat.users.domain.User
 import com.example.chatterbox.chat.users.presentation.EditProfileScreen
 import kotlinx.serialization.Serializable
@@ -42,6 +44,9 @@ fun AuthNavigator(modifier: Modifier = Modifier) {
         }
         composable<ChatPagerScreenObject>{
             ChatPagerScreen(navController)
+        }
+        composable<ChatScreenObject>{
+            ChatScreen()
         }
         composable (
             // toRoute<T>() only needs T to match the route you're currently in — not the caller.
@@ -72,6 +77,9 @@ object SignInScreenObject
 
 @Serializable
 object ChatPagerScreenObject
+
+@Serializable
+object ChatScreenObject
 
 @Serializable
 data class EditProfileScreenObject(
