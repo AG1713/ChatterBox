@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.chatterbox.chat.userChats.domain.UserChatRepository
 import com.example.chatterbox.chat.users.domain.UserRepository
-import com.example.chatterbox.core.common.currentUserId
 import kotlinx.coroutines.launch
 
 class UserChatViewModel(
@@ -14,14 +13,25 @@ class UserChatViewModel(
 ): ViewModel() {
     val TAG = "UserChatViewModel"
 
-    init {
-        viewModelScope.launch {
-            userChatRepository.getAllUserChatsForUser(currentUserId)
-        }
-
-    }
+//    init {
+//        viewModelScope.launch {
+//            userChatRepository.getAllUserChats()
+//        }
+//    }
 
     val userChats = userChatRepository.userChats
+
+    fun getAllUserChats(){
+        viewModelScope.launch {
+            userChatRepository.getAllUserChats()
+            Log.d(TAG, "getAllUserChats: userChatListener activated")
+        }
+    }
+
+    fun clearUserChatsListeners(){
+        userChatRepository.clearAllListeners()
+        Log.d(TAG, "getAllUserChats: userChatListener removed")
+    }
 
     suspend fun getUsername(id: String): String? {
         Log.d(TAG, "getUsername: Called")

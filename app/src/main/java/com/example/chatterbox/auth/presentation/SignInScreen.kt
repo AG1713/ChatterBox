@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.example.chatterbox.ChatPagerScreenObject
 import com.example.chatterbox.R
@@ -45,6 +46,7 @@ import com.example.chatterbox.ui.theme.ChatterBoxTheme
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 const val TAG: String = "SignInScreen"
@@ -55,8 +57,13 @@ fun SignInScreen(navController: NavController, modifier: Modifier = Modifier) {
     val authViewModel = koinViewModel<AuthViewModel>()
     val context = LocalContext.current
     val googleSignInClient = GoogleSignIn.getClient(context, GoogleSignInOptions.DEFAULT_SIGN_IN)
+    
 
-//    authViewModel.signOut() // Already there in MainActivity
+    authViewModel.signOut() // Because we cannot navigate first or sign out first from the
+    // the main screen, since, if we navigate first, rest sign out code won't run, and
+    // if we log out first, app will crash with null pointer exception since current user id is null
+
+
     // The below is to ask for account always
     googleSignInClient.revokeAccess().addOnCompleteListener {
         Log.d("AuthViewModel", "User signed out and account selection reset")
@@ -73,7 +80,12 @@ fun SignInScreen(navController: NavController, modifier: Modifier = Modifier) {
                 // Retrieving id
                 val idToken = account?.idToken
                 if (idToken != null){
-                    authViewModel.signInWithGoogle(idToken)
+                    authViewModel.viewModelScope.launch {
+                        authViewModel.signInWithGoogle(idToken)
+                        navController.navigate(ChatPagerScreenObject) {
+                            popUpTo<SignInScreenObject> { inclusive = true }
+                        }
+                    }
                 }
 
             }
@@ -87,14 +99,14 @@ fun SignInScreen(navController: NavController, modifier: Modifier = Modifier) {
 
     val authState by authViewModel.authState.collectAsState()
 
-    val navigateToChats by authViewModel.navigateToChat.collectAsStateWithLifecycle(null)
-    LaunchedEffect (navigateToChats){
-        navigateToChats?.let {
-            navController.navigate(ChatPagerScreenObject) {
-                popUpTo<SignInScreenObject> { inclusive = true }
-            }
-        }
-    }
+//    val navigateToChats by authViewModel.navigateToChat.collectAsStateWithLifecycle(null)
+//    LaunchedEffect (navigateToChats){
+//        navigateToChats?.let {
+//            navController.navigate(ChatPagerScreenObject) {
+//                popUpTo<SignInScreenObject> { inclusive = true }
+//            }
+//        }
+//    }
 
     ChatterBoxTheme {
 

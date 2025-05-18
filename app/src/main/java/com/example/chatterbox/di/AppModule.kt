@@ -13,13 +13,13 @@ import org.koin.androidx.viewmodel.dsl.viewModelOf
 import org.koin.dsl.module
 
 val appModule = module {
-    single<AuthRepository> { FirebaseAuthRepository() }
-    single<UserRepository> { FirestoreUserRepository() }
-    single<UserChatRepository> { FirestoreUserChatRepository() }
+    single<AuthRepository>(createdAtStart = false) { FirebaseAuthRepository() }
+    single<UserRepository>(createdAtStart = false) { FirestoreUserRepository() }
+    single<UserChatRepository>(createdAtStart = false) { FirestoreUserChatRepository() }
 
-    viewModelOf(::AuthViewModel)
+    single<AuthViewModel>(createdAtStart = false) { AuthViewModel(get(), get()) }
 //    viewModelOf(::UserViewModel)
-    single<UserViewModel> { UserViewModel(get()) }
-    single<UserChatViewModel> { UserChatViewModel(get(), get()) }
+    single<UserViewModel>(createdAtStart = false) { UserViewModel(get()) }
+    single<UserChatViewModel>(createdAtStart = false) { UserChatViewModel(get(), get()) }
 
 }

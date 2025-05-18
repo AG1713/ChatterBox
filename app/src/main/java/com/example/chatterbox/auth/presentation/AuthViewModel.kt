@@ -25,37 +25,36 @@ class AuthViewModel(
     private val _user = MutableStateFlow<FirebaseUser?>(authRepository.currentUser)
     val user: StateFlow<FirebaseUser?> = _user
 
-    fun signInWithGoogle(idToken: String) {
-        viewModelScope.launch {
-            _authState.value = AuthState.Loading
-            val result = authRepository.signInWithGoogle(idToken)
-            if (result.isSuccess) {
-                _user.value = authRepository.currentUser
-                viewModelScope.launch {
-                    userRepository.createUserProfileIfNotExists(
-                        User(
-                            id = _user.value!!.uid, // Assuming it is not null
-                            username = "User",
-                            email = _user.value!!.email!!,
-                            description = "Default description",
-                            profilePhotoUrl = "",
-                            status = "Online",
-                            lastActive = System.currentTimeMillis(),
-                            dateCreated = System.currentTimeMillis()
-                        )
-                    )
-                    _authState.value = AuthState.Success
-                    _navigateToChat.emit(Unit)
-                }
-            } else {
-                AuthState.Error(result.exceptionOrNull())
-            }
+    suspend fun signInWithGoogle(idToken: String) {
+        _authState.value = AuthState.Loading
+        val result = authRepository.signInWithGoogle(idToken)
+        if (result.isSuccess) {
+            _user.value = authRepository.currentUser
+            userRepository.createUserProfileIfNotExists(
+                User(
+                    id = _user.value!!.uid, // Assuming it is not null
+                    username = "User",
+                    email = _user.value!!.email!!,
+                    description = "Default description",
+                    profilePhotoUrl = "",
+                    status = "Online",
+                    lastActive = System.currentTimeMillis(),
+                    dateCreated = System.currentTimeMillis()
+                )
+            )
+            _authState.value = AuthState.Success
+            _navigateToChat.emit(Unit)
+        } else {
+            AuthState.Error(result.exceptionOrNull())
         }
     }
 
     fun signOut() {
-        authRepository.signOut()
-        _user.value = null
+        viewModelScope.launch {
+            authRepository.signOut()
+            _user.value = null
+            _authState.value = AuthState.Idle
+        }
     }
 
 }

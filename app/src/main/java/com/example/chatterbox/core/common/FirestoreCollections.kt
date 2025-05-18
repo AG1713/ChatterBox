@@ -16,5 +16,3 @@ fun getRelativeTime(millis: Long): CharSequence {
         DateUtils.MINUTE_IN_MILLIS
     )
 }
-
-val currentUserId = FirebaseAuth.getInstance().uid!!

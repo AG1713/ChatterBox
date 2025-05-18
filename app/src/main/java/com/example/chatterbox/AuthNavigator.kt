@@ -18,6 +18,7 @@ import com.example.chatterbox.chat.userChats.presentation.ChatScreen
 import com.example.chatterbox.chat.userChats.presentation.UserChatsScreen
 import com.example.chatterbox.chat.users.domain.User
 import com.example.chatterbox.chat.users.presentation.EditProfileScreen
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.koin.androidx.compose.koinViewModel
@@ -27,8 +28,9 @@ fun AuthNavigator(modifier: Modifier = Modifier) {
     val authViewModel = koinViewModel<AuthViewModel>()
     val user by authViewModel.user.collectAsState()
     val navController = rememberNavController()
+    val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
 
-    val startDestination = if (user != null) {
+    val startDestination = if (currentUserId != null) {
         ChatPagerScreenObject
     } else {
         SignInScreenObject

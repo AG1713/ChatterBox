@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.StateFlow
 
 interface UserChatRepository {
     val userChats: StateFlow<List<UserChat>>
-    suspend fun getAllUserChatsForUser(id: String): MutableStateFlow<List<UserChat>>;
+    suspend fun getAllUserChats(): MutableStateFlow<List<UserChat>>;
     suspend fun getOrCreateUserChat(id: String);
+    fun clearAllListeners();
 }

@@ -38,8 +38,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun UserChatItem(modifier: Modifier = Modifier, userChat: UserChat, navController: NavController?) {
     val TAG = "UserChatItem"
-
-    val currentUserId: String = FirebaseAuth.getInstance().currentUser?.uid ?: "null"
+    val currentUserId = FirebaseAuth.getInstance().currentUser!!.uid
 
     val username = if (userChat.members[0].id == currentUserId) userChat.members[1].username
     else userChat.members[0].username
@@ -68,7 +67,7 @@ fun UserChatItem(modifier: Modifier = Modifier, userChat: UserChat, navControlle
         ){
             Text(
                 text = username,
-                fontSize = 25.sp
+                fontSize = 17.sp
             )
             Text(
                 text = "${userChat.lastMessageUsername}: ${userChat.lastMessage}"

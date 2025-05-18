@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewLightDark
@@ -20,6 +21,14 @@ fun UserChatsScreen(navController: NavController) {
     val TAG = "ChatsScreen"
     val userChatViewModel = koinViewModel<UserChatViewModel>()
     val userChats by userChatViewModel.userChats.collectAsStateWithLifecycle()
+
+    DisposableEffect(Unit) {
+        userChatViewModel.getAllUserChats()
+
+        onDispose {
+            userChatViewModel.clearUserChatsListeners()
+        }
+    }
 
     LazyColumn(
         modifier = Modifier

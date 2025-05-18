@@ -14,9 +14,8 @@ class FirestoreUserRepository (
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
 ): UserRepository {
     val TAG = "FirestoreUserRepository"
-
-    val currentUserId: String
-        get() = FirebaseAuth.getInstance().currentUser!!.uid
+    val currentUserId: String?
+        get() = FirebaseAuth.getInstance().currentUser?.uid
 
     override suspend fun createUserProfileIfNotExists(user: User) {
         // We have passed user object here in hopes that later after first login, we will
@@ -31,7 +30,7 @@ class FirestoreUserRepository (
     }
 
     override suspend fun getCurrentUserProfile(): User? {
-        return firestore.collection(FirestoreCollections.USERS).document(currentUserId).get(Source.SERVER)
+        return firestore.collection(FirestoreCollections.USERS).document(currentUserId!!).get(Source.SERVER)
             .await().toObject<User>()
     }
 
@@ -52,7 +51,7 @@ class FirestoreUserRepository (
                 // Just a basic check
                 return
             }
-            val userDoc = firestore.collection(FirestoreCollections.USERS).document(currentUserId)
+            val userDoc = firestore.collection(FirestoreCollections.USERS).document(currentUserId!!)
 
             userDoc.set(user)
         }
