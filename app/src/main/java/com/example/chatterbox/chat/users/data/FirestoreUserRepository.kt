@@ -4,10 +4,13 @@ import android.util.Log
 import com.example.chatterbox.chat.users.domain.User
 import com.example.chatterbox.chat.users.domain.UserRepository
 import com.example.chatterbox.core.common.FirestoreCollections
+import com.example.chatterbox.core.common.ListenerRegistry
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Source
 import com.google.firebase.firestore.toObject
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.tasks.await
 
 class FirestoreUserRepository (
@@ -16,6 +19,9 @@ class FirestoreUserRepository (
     val TAG = "FirestoreUserRepository"
     val currentUserId: String?
         get() = FirebaseAuth.getInstance().currentUser?.uid
+
+    private val _users = MutableStateFlow<List<User>>(listOf())
+    override val users = _users.asStateFlow()
 
     override suspend fun createUserProfileIfNotExists(user: User) {
         // We have passed user object here in hopes that later after first login, we will
@@ -59,6 +65,35 @@ class FirestoreUserRepository (
             Log.d("EXCEPTION", "culprit: ")
         }
 
+    }
+
+    override suspend fun searchUsers(hint: String): MutableStateFlow<List<User>> {
+        if (hint.isEmpty()) {
+            _users.value = listOf()
+            return _users
+        }
+
+        try {
+            firestore.collection(FirestoreCollections.USERS)
+                .whereGreaterThanOrEqualTo("username", hint)
+                .whereLessThan("username", hint + "\uf8ff")
+                .orderBy("username")
+                .get()
+                .addOnSuccessListener { userList ->
+
+                    val users = userList!!.documents.mapNotNull { doc ->
+                        doc.toObject(User::class.java)
+                    }
+
+                    _users.value = users
+
+                }
+        }
+        catch (e: Exception){
+            Log.e(TAG, "searchUsers: ${e.message}", )
+        }
+
+        return _users
     }
 
 

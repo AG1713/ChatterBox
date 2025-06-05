@@ -20,19 +20,19 @@ class UserViewModel(
 ): ViewModel() {
     val TAG = "UserViewModel"
     
-    private val _user = MutableStateFlow<UserState>(UserState())
-    val user: StateFlow<UserState> = _user
+    private val _user = MutableStateFlow<User?>(null)
+    val user: StateFlow<User?> = _user
 
     private var _loadState = MutableStateFlow<LoadState>(LoadState.Idle)
     val loadState = _loadState
 
     init {
-        Log.d(TAG, "ViewModel created")
+        Log.d(TAG, "UserViewModel created")
         _loadState.value = LoadState.Idle
         getCurrentUser()
     }
 
-    public fun resetLoadState(){
+    fun resetLoadState(){
         _loadState.value = LoadState.Idle
     }
 
@@ -40,24 +40,15 @@ class UserViewModel(
         viewModelScope.launch {
 
             try {
-                _user.update {
-                    it.copy(
-                        isLoading = true
-                    )
-                }
-
+                _loadState.value = LoadState.Loading
                 val profile = userRepository.getCurrentUserProfile()
                 Log.d(TAG, "getCurrentUser: $profile")
-                _user.update {
-                    _user.value.copy(
-                        user = profile,
-                        isLoading = false
-                    )
-                }
+                _user.value = profile
                 Log.d(TAG, "getCurrentUser: ${_user.value}")
+                _loadState.value = LoadState.Idle
             }
             catch (e: Exception){
-                Log.d("EXCEPTION", "culprit: ")
+                Log.d(TAG, "culprit: ")
             }
         }
     }

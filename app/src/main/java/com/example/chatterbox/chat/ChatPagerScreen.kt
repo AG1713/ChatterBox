@@ -37,26 +37,34 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.chatterbox.SignInScreenObject
+import com.example.chatterbox.UserChatsRootObject
+import com.example.chatterbox.UserProfileRootObject
 import com.example.chatterbox.auth.presentation.AuthViewModel
+import com.example.chatterbox.chat.userChats.presentation.UserChatViewModel
+import com.example.chatterbox.chat.userChats.presentation.UserChatsRoot
 import com.example.chatterbox.chat.userChats.presentation.UserChatsScreen
+import com.example.chatterbox.chat.users.presentation.UserProfileRoot
 import com.example.chatterbox.chat.users.presentation.UserProfileScreen
 import com.example.chatterbox.chat.users.presentation.UserViewModel
 import com.example.chatterbox.core.common.ListenerRegistry
+import com.example.chatterbox.ui.theme.ChatterBoxTheme
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ChatPagerScreen(navController: NavController, modifier: Modifier = Modifier) {
-
+fun ChatPagerScreen (
+    userViewModel: UserViewModel,
+    userChatViewModel: UserChatViewModel,
+    navController: NavController?,
+    modifier: Modifier = Modifier
+) {
     val scope = rememberCoroutineScope()
-    val userViewModel: UserViewModel = koinViewModel()
-    val authViewModel: AuthViewModel = koinViewModel()
-    val userState = userViewModel.user.collectAsStateWithLifecycle()
 
     val tabs = listOf(
             TabItem(
@@ -64,7 +72,7 @@ fun ChatPagerScreen(navController: NavController, modifier: Modifier = Modifier)
                 unselectedIcon = Icons.Outlined.Home,
                 selectedIcon = Icons.Filled.Home,
             ) {
-                UserChatsScreen(navController = navController)
+                UserChatsRoot(userChatViewModel = userChatViewModel, navController = navController)
             },
             TabItem(
                 title = "Groups",
@@ -78,7 +86,7 @@ fun ChatPagerScreen(navController: NavController, modifier: Modifier = Modifier)
                 unselectedIcon = Icons.Outlined.Person,
                 selectedIcon = Icons.Filled.Person,
             ) {
-                UserProfileScreen(navController)
+                UserProfileRoot(userViewModel = userViewModel, navController = navController)
             },
         )
 
@@ -123,7 +131,7 @@ fun ChatPagerScreen(navController: NavController, modifier: Modifier = Modifier)
                                 onClick = {
                                     ListenerRegistry.clearAll()
                                     Log.d("ListenerRegistry", "ChatPagerScreen")
-                                    navController.navigate(SignInScreenObject) {
+                                    navController?.navigate(SignInScreenObject) {
                                         popUpTo(0) { inclusive = true }
                                         launchSingleTop = true
                                     }
@@ -183,7 +191,6 @@ fun ChatPagerScreen(navController: NavController, modifier: Modifier = Modifier)
 
     }
 
-
 }
 
 @Composable
@@ -197,3 +204,15 @@ data class TabItem(
     val unselectedIcon: ImageVector,
     val composable: @Composable () -> Unit
 )
+
+@PreviewLightDark
+@Composable
+fun ChatPagerScreenPreview(modifier: Modifier = Modifier) {
+//    ChatterBoxTheme {
+//        ChatPagerScreen(
+//            navController = null,
+//            userChatViewModel = koinViewModel(),
+//            userViewModel = koinViewModel()
+//        )
+//    }
+}

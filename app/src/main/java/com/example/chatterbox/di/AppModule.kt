@@ -17,9 +17,13 @@ val appModule = module {
     single<UserRepository>(createdAtStart = false) { FirestoreUserRepository() }
     single<UserChatRepository>(createdAtStart = false) { FirestoreUserChatRepository() }
 
-    single<AuthViewModel>(createdAtStart = false) { AuthViewModel(get(), get()) }
+//    single<AuthViewModel>(createdAtStart = false) { AuthViewModel(get(), get()) }
 //    viewModelOf(::UserViewModel)
-    single<UserViewModel>(createdAtStart = false) { UserViewModel(get()) }
-    single<UserChatViewModel>(createdAtStart = false) { UserChatViewModel(get(), get()) }
+//    single<UserViewModel>(createdAtStart = false) { UserViewModel(get()) }
+//    single<UserChatViewModel>(createdAtStart = false) { UserChatViewModel(get(), get()) }
+
+    viewModelOf(::AuthViewModel)
+    viewModelOf(::UserViewModel)
+    viewModelOf(::UserChatViewModel)
 
 }

@@ -20,11 +20,27 @@ class UserChatViewModel(
 //    }
 
     val userChats = userChatRepository.userChats
+    val users = userRepository.users
+
+    init {
+        Log.d(TAG, "UserChatViewModel created")
+    }
 
     fun getAllUserChats(){
         viewModelScope.launch {
             userChatRepository.getAllUserChats()
             Log.d(TAG, "getAllUserChats: userChatListener activated")
+        }
+    }
+
+    fun getAllUsersWithHint(hint: String) {
+        viewModelScope.launch {
+            try {
+                userRepository.searchUsers(hint)
+            }
+            catch (e: Exception){
+                Log.e(TAG, "getAllUsersWithHint: ${e.message}")
+            }
         }
     }
 

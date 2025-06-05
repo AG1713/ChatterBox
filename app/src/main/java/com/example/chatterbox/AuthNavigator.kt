@@ -15,9 +15,16 @@ import com.example.chatterbox.auth.presentation.AuthViewModel
 import com.example.chatterbox.auth.presentation.SignInScreen
 import com.example.chatterbox.chat.ChatPagerScreen
 import com.example.chatterbox.chat.userChats.presentation.ChatScreen
+import com.example.chatterbox.chat.userChats.presentation.SearchUsersRoot
+import com.example.chatterbox.chat.userChats.presentation.SearchUsersScreen
+import com.example.chatterbox.chat.userChats.presentation.UserChatViewModel
+import com.example.chatterbox.chat.userChats.presentation.UserChatsRoot
 import com.example.chatterbox.chat.userChats.presentation.UserChatsScreen
 import com.example.chatterbox.chat.users.domain.User
+import com.example.chatterbox.chat.users.presentation.EditProfileRoot
 import com.example.chatterbox.chat.users.presentation.EditProfileScreen
+import com.example.chatterbox.chat.users.presentation.UserProfileRoot
+import com.example.chatterbox.chat.users.presentation.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -25,8 +32,9 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun AuthNavigator(modifier: Modifier = Modifier) {
-    val authViewModel = koinViewModel<AuthViewModel>()
-    val user by authViewModel.user.collectAsState()
+    val authViewModel:AuthViewModel = koinViewModel()
+    val userViewModel: UserViewModel = koinViewModel()
+    val userChatViewModel: UserChatViewModel = koinViewModel()
     val navController = rememberNavController()
     val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
 
@@ -42,33 +50,26 @@ fun AuthNavigator(modifier: Modifier = Modifier) {
     ) {
 
         composable<SignInScreenObject>{
-            SignInScreen(navController)
+            SignInScreen(navController = navController)
         }
         composable<ChatPagerScreenObject>{
-            ChatPagerScreen(navController)
+            ChatPagerScreen(userViewModel = userViewModel, userChatViewModel = userChatViewModel, navController = navController)
+        }
+        composable<UserChatsRootObject>{
+            UserChatsRoot(userChatViewModel = userChatViewModel, navController = navController)
         }
         composable<ChatScreenObject>{
             ChatScreen()
         }
-        composable (
-            // toRoute<T>() only needs T to match the route you're currently in — not the caller.
-            route = "edit_profile_screen/{user}",
-            arguments = listOf(
-                navArgument("user") {
-                    type = NavType.StringType
-                    nullable = false // Not mandatory
-                }
-            )
-        ){
-            entry: NavBackStackEntry ->
-            val userJson = entry.arguments?.getString("user")
-            val oldUser = Json.decodeFromString<User>(Uri.decode(userJson))
-
-            EditProfileScreen(user1 = oldUser, navController)
-
+        composable<UserProfileRootObject>{
+            UserProfileRoot(userViewModel = userViewModel, navController = navController)
         }
-
-
+        composable<SearchUsersRootObject>{
+            SearchUsersRoot(userChatViewModel = userChatViewModel, navController = navController)
+        }
+        composable<EditProfileRootObject> {
+            EditProfileRoot(userViewModel = userViewModel, navController = navController)
+        }
 
     }
 
@@ -81,9 +82,16 @@ object SignInScreenObject
 object ChatPagerScreenObject
 
 @Serializable
+object UserChatsRootObject
+
+@Serializable
+object UserProfileRootObject
+
+@Serializable
 object ChatScreenObject
 
 @Serializable
-data class EditProfileScreenObject(
-    val user: User
-)
+object EditProfileRootObject
+
+@Serializable
+object SearchUsersRootObject

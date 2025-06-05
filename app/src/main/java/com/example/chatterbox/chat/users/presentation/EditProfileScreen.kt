@@ -42,31 +42,33 @@ import com.example.chatterbox.ui.theme.ChatterBoxTheme
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
+
 @Composable
-fun EditProfileScreen(user1: User, navController: NavController?, modifier: Modifier = Modifier) {
-
-    val TAG = "EditProfileScreen"
-    val activityOwner = LocalContext.current.findActivity()?.viewModelStore
-    // Force scoping of the ViewModel to the Activity
-//    val userViewModel: UserViewModel = koinViewModel(
-//        viewModelStoreOwner = object : ViewModelStoreOwner {
-//            override val viewModelStore = activityOwner!!
-//        }
-//    )
-    val userViewModel = koinViewModel<UserViewModel>()
-    val user by userViewModel.user.collectAsState()
+fun EditProfileRoot(userViewModel: UserViewModel, navController: NavController?, modifier: Modifier = Modifier) {
+    val user by userViewModel.user.collectAsStateWithLifecycle()
     val loadState by userViewModel.loadState.collectAsStateWithLifecycle()
+    Log.d("EditProfileRoot", "EditProfileScreen: $loadState")
+    EditProfileScreen(user = user, loadState = loadState, navController = navController) {
+        userViewModel.updateCurrentUser(it)
+    }
+}
 
-    var username by remember { mutableStateOf(user.user!!.username) }
-    var description by remember { mutableStateOf(user.user!!.description) }
+@Composable
+fun EditProfileScreen(user: User?, loadState: LoadState, navController: NavController?, modifier: Modifier = Modifier, updateUser: (User) -> Unit) {
+    val TAG = "EditProfileScreen"
+
+    var username by remember { mutableStateOf(user?.username) }
+    var description by remember { mutableStateOf(user?.description) }
     // TODO: Edit this after adding the functionality of uploading the profile photo
-    var profilePhotoUrl by remember { mutableStateOf(user.user?.profilePhotoUrl) }
+    var profilePhotoUrl by remember { mutableStateOf(user?.profilePhotoUrl) }
 
     LaunchedEffect(loadState) {
         if (loadState == LoadState.Success) {
             navController?.popBackStack()
         }
     }
+
+    Log.d(TAG, "EditProfileScreen: $loadState")
 
     Column(
         modifier = modifier
@@ -80,59 +82,62 @@ fun EditProfileScreen(user1: User, navController: NavController?, modifier: Modi
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        if (loadState == LoadState.Loading) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.5f)) // faded background
-                    .clickable(enabled = false) {} // disables clicks
-                    .zIndex(1f), // ensures it's on top
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator(color = Color.White)
+
+        RoundImage(
+            image = painterResource(R.drawable.google_logo),
+            modifier = Modifier.size(125.dp),
+            showDot = false
+        )
+
+        Spacer(Modifier.height(15.dp))
+
+        OutlinedTextField(
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text("Username") },
+            value = username ?: "",
+            onValueChange = {
+                username = it
             }
-        } else {
-            RoundImage(
-                image = painterResource(R.drawable.google_logo),
-                modifier = Modifier.size(125.dp)
-            )
+        )
 
-            Spacer(Modifier.height(15.dp))
+        Spacer(Modifier.height(15.dp))
 
-            OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(),
-                label = { Text("Username") },
-                value = username,
-                onValueChange = {
-                    username = it
-                }
-            )
-
-            Spacer(Modifier.height(15.dp))
-
-            OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(),
-                label = { Text("Description") },
-                value = description,
-                onValueChange = {
-                    description = it
-                }
-            )
-
-            Spacer(Modifier.height(25.dp))
-
-            Button(
-                onClick = {
-                    Log.d(TAG, "Save changes clicked")
-                    val newUser = user.user!!.copy(username = username, description = description)
-                    userViewModel.updateCurrentUser(newUser)
-                    Log.d(TAG, "Save changes onClick ended")
-                }
-            ) {
-                Text("Save changes")
+        OutlinedTextField(
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text("Description") },
+            value = description ?: "",
+            onValueChange = {
+                description = it
             }
+        )
+
+        Spacer(Modifier.height(25.dp))
+
+        Button(
+            onClick = {
+                Log.d(TAG, "Save changes clicked")
+                if (username == null || description == null) return@Button
+                val newUser = user!!.copy(username = username!!, description = description!!)
+                updateUser(newUser)
+                Log.d(TAG, "Save changes onClick ended")
+            }
+        ) {
+            Text("Save changes")
         }
 
+    }
+
+    if (loadState == LoadState.Loading) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.5f)) // faded background
+                .clickable(enabled = false) {} // disables clicks
+                .zIndex(1f), // ensures it's on top
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(color = Color.White)
+        }
     }
 
 
@@ -141,19 +146,33 @@ fun EditProfileScreen(user1: User, navController: NavController?, modifier: Modi
 @PreviewLightDark
 @Composable
 fun EditProfileScreenPreview(modifier: Modifier = Modifier) {
+//    User(
+//        id = "1",
+//        username = "Username",
+//        email = "sample@gmail.com",
+//        description = "This is a description",
+//        profilePhotoUrl = "",
+//        status = "Online",
+//        lastActive = System.currentTimeMillis(),
+//        dateCreated = System.currentTimeMillis()
+//    )
+
     ChatterBoxTheme {
         EditProfileScreen(
-            User(
-                id = "1",
-                username = "Username",
-                email = "sample@gmail.com",
-                description = "This is a description",
-                profilePhotoUrl = "",
-                status = "Online",
-                lastActive = System.currentTimeMillis(),
-                dateCreated = System.currentTimeMillis()
+            user = User(
+                id = "u1",
+                username = "Alice",
+                email = "alice@example.com",
+                description = "Nature lover and tech enthusiast.",
+                profilePhotoUrl = "https://example.com/photos/alice.jpg",
+                status = "online",
+                lastActive = System.currentTimeMillis() - 5 * 60 * 1000, // 5 minutes ago
+                dateCreated = System.currentTimeMillis() - 100 * 24 * 60 * 60 * 1000L // 100 days ago
             ),
-            null
-        )
+            loadState = LoadState.Idle,
+            navController = null
+        ){
+
+        }
     }
 }
