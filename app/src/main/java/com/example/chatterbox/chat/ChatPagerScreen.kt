@@ -39,22 +39,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.chatterbox.SignInScreenObject
-import com.example.chatterbox.UserChatsRootObject
-import com.example.chatterbox.UserProfileRootObject
-import com.example.chatterbox.auth.presentation.AuthViewModel
 import com.example.chatterbox.chat.userChats.presentation.UserChatViewModel
 import com.example.chatterbox.chat.userChats.presentation.UserChatsRoot
-import com.example.chatterbox.chat.userChats.presentation.UserChatsScreen
 import com.example.chatterbox.chat.users.presentation.UserProfileRoot
-import com.example.chatterbox.chat.users.presentation.UserProfileScreen
 import com.example.chatterbox.chat.users.presentation.UserViewModel
 import com.example.chatterbox.core.common.ListenerRegistry
-import com.example.chatterbox.ui.theme.ChatterBoxTheme
 import kotlinx.coroutines.launch
-import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

@@ -26,13 +26,14 @@ import com.example.chatterbox.ui.components.RoundImage
 import com.example.chatterbox.ui.theme.ChatterBoxTheme
 
 @Composable
-fun UserItem(modifier: Modifier = Modifier, user: User, navController: NavController?) {
+fun UserItem(modifier: Modifier = Modifier, user: User, navController: NavController?,
+             onClick: () -> Unit) {
 
     Row (
         modifier = modifier
             .fillMaxWidth()
             .clickable {
-                navController?.navigate(ChatScreenObject)
+                onClick()
             }
             .padding(15.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -78,7 +79,8 @@ fun UserItemPreview(modifier: Modifier = Modifier) {
                 lastActive = System.currentTimeMillis(),
                 dateCreated = System.currentTimeMillis()
             ),
-            navController = null
+            navController = null,
+            onClick = { }
         )
     }
 }

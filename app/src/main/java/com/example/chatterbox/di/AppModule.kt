@@ -5,6 +5,7 @@ import com.example.chatterbox.auth.domain.AuthRepository
 import com.example.chatterbox.auth.presentation.AuthViewModel
 import com.example.chatterbox.chat.userChats.data.FirestoreUserChatRepository
 import com.example.chatterbox.chat.userChats.domain.UserChatRepository
+import com.example.chatterbox.chat.userChats.presentation.ChatViewModel
 import com.example.chatterbox.chat.userChats.presentation.UserChatViewModel
 import com.example.chatterbox.chat.users.data.FirestoreUserRepository
 import com.example.chatterbox.chat.users.domain.UserRepository
@@ -25,5 +26,6 @@ val appModule = module {
     viewModelOf(::AuthViewModel)
     viewModelOf(::UserViewModel)
     viewModelOf(::UserChatViewModel)
+    viewModelOf(::ChatViewModel)
 
 }

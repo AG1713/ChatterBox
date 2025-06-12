@@ -40,6 +40,8 @@ import org.koin.androidx.compose.koinViewModel
 fun UserChatItem(modifier: Modifier = Modifier, currentUserId: String?, userChat: UserChat, navController: NavController?) {
     val TAG = "UserChatItem"
 
+    val id = if (userChat.members[0].id == currentUserId) userChat.members[1].id
+    else userChat.members[0].id
     val username = if (userChat.members[0].id == currentUserId) userChat.members[1].username
     else userChat.members[0].username
 
@@ -47,7 +49,7 @@ fun UserChatItem(modifier: Modifier = Modifier, currentUserId: String?, userChat
         modifier = modifier
             .fillMaxWidth()
             .clickable {
-                navController?.navigate(ChatScreenObject)
+                navController?.navigate(ChatScreenObject(id = id, chatRoomId = userChat.id, username = username))
             }
             .padding(15.dp),
         verticalAlignment = Alignment.CenterVertically

@@ -79,7 +79,7 @@ fun EditProfileScreen(user: User?, loadState: LoadState, navController: NavContr
                 end = 15.dp,
                 bottom = 15.dp
             ),
-        verticalArrangement = Arrangement.Top,
+        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
@@ -91,16 +91,16 @@ fun EditProfileScreen(user: User?, loadState: LoadState, navController: NavContr
 
         Spacer(Modifier.height(15.dp))
 
-        OutlinedTextField(
-            modifier = Modifier.fillMaxWidth(),
-            label = { Text("Username") },
-            value = username ?: "",
-            onValueChange = {
-                username = it
-            }
-        )
-
-        Spacer(Modifier.height(15.dp))
+//        OutlinedTextField(
+//            modifier = Modifier.fillMaxWidth(),
+//            label = { Text("Username") },
+//            value = username ?: "",
+//            onValueChange = {
+//                username = it
+//            }
+//        )
+//
+//        Spacer(Modifier.height(15.dp))
 
         OutlinedTextField(
             modifier = Modifier.fillMaxWidth(),
@@ -124,6 +124,8 @@ fun EditProfileScreen(user: User?, loadState: LoadState, navController: NavContr
         ) {
             Text("Save changes")
         }
+
+        Spacer(Modifier.height(25.dp))
 
     }
 

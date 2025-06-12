@@ -7,6 +7,7 @@ import com.google.firebase.auth.FirebaseAuth
 object FirestoreCollections {
     const val USERS = "users"
     const val USERCHATS = "userchats"
+    const val CHATS = "chats"
 }
 
 fun getRelativeTime(millis: Long): CharSequence {
