@@ -29,14 +29,13 @@ class UserViewModel(
     init {
         Log.d(TAG, "UserViewModel created")
         _loadState.value = LoadState.Idle
-        getCurrentUser()
     }
 
     fun resetLoadState(){
         _loadState.value = LoadState.Idle
     }
 
-    private fun getCurrentUser() {
+    fun getCurrentUser() {
         viewModelScope.launch {
 
             try {
@@ -47,8 +46,8 @@ class UserViewModel(
                 Log.d(TAG, "getCurrentUser: ${_user.value}")
                 _loadState.value = LoadState.Idle
             }
-            catch (e: Exception){
-                Log.d(TAG, "culprit: ")
+            catch (e: NullPointerException){
+                Log.d(TAG, "culprit: $e")
             }
         }
     }

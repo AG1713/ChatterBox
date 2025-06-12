@@ -42,7 +42,7 @@ class FirestoreUserRepository (
 
     override suspend fun getUserProfile(id: String): User? {
         return try {
-            firestore.collection(FirestoreCollections.USERS).document().get()
+            firestore.collection(FirestoreCollections.USERS).document(id).get()
                 .await().toObject<User>()
         }
         catch (e: Exception){

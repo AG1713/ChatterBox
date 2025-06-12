@@ -28,9 +28,8 @@ fun AuthNavigator(modifier: Modifier = Modifier) {
     val userChatViewModel: UserChatViewModel = koinViewModel()
     val chatViewModel: ChatViewModel = koinViewModel()
     val navController = rememberNavController()
-    val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
 
-    val startDestination = if (currentUserId != null) {
+    val startDestination = if (FirebaseAuth.getInstance().currentUser?.uid != null) {
         ChatPagerScreenObject
     } else {
         SignInScreenObject
@@ -42,7 +41,7 @@ fun AuthNavigator(modifier: Modifier = Modifier) {
     ) {
 
         composable<SignInScreenObject>{
-            SignInScreen(navController = navController)
+            SignInScreen(authViewModel = authViewModel, navController = navController)
         }
         composable<ChatPagerScreenObject>{
             ChatPagerScreen(userViewModel = userViewModel, userChatViewModel = userChatViewModel, navController = navController)
@@ -53,12 +52,13 @@ fun AuthNavigator(modifier: Modifier = Modifier) {
         composable<ChatScreenObject>{
             val args = it.toRoute<ChatScreenObject>()
             val currentUsername = userViewModel.user.value?.username
+            val currentUserId = FirebaseAuth.getInstance().currentUser!!.uid
             ChatRoot(
                 chatViewModel = chatViewModel,
                 chatRoomId = args.chatRoomId,
                 otherUserId = args.id,
                 otherUsername = args.username,
-                currentUserId = currentUserId!!,
+                currentUserId = currentUserId,
                 currentUsername = currentUsername!!
             )
         }

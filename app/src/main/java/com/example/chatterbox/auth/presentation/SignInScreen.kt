@@ -52,7 +52,7 @@ import org.koin.androidx.compose.koinViewModel
 const val TAG: String = "SignInScreen"
 
 @Composable
-fun SignInScreen(navController: NavController, modifier: Modifier = Modifier) {
+fun SignInScreen(authViewModel: AuthViewModel, navController: NavController, modifier: Modifier = Modifier) {
 
     val authViewModel = koinViewModel<AuthViewModel>()
     val context = LocalContext.current

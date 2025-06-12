@@ -42,6 +42,7 @@ class AuthViewModel(
                     dateCreated = System.currentTimeMillis()
                 )
             )
+
             _authState.value = AuthState.Success
             _navigateToChat.emit(Unit)
         } else {

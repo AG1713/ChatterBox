@@ -56,6 +56,10 @@ fun ChatPagerScreen (
     navController: NavController?,
     modifier: Modifier = Modifier
 ) {
+    LaunchedEffect(Unit) {
+        userViewModel.getCurrentUser()
+    }
+
     val scope = rememberCoroutineScope()
 
     val tabs = listOf(
@@ -95,6 +99,7 @@ fun ChatPagerScreen (
     }
 
     Scaffold (
+        modifier = modifier,
         topBar = {
             var expanded by remember { mutableStateOf(false) }
 
