@@ -1,5 +1,6 @@
-package com.example.chatterbox.chat.userChats.presentation
+package com.example.chatterbox.chat.groups.presentation
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -42,53 +43,45 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.chatterbox.chat.groups.domain.Group
 import com.example.chatterbox.chat.shared.domain.Message
+import com.example.chatterbox.chat.userChats.presentation.MessageItem
 import com.example.chatterbox.ui.theme.ChatterBoxTheme
 
-
 @Composable
-fun ChatRoot(
-    chatViewModel: ChatViewModel,
-    modifier: Modifier = Modifier,
-    chatRoomId: String,
-    otherUserId: String,
-    otherUsername: String,
-    currentUserId: String,
-    currentUsername: String
-){
+fun GroupChatRoot(groupChatViewModel: GroupChatViewModel, groupId: String, groupName: String, currentUserId: String,
+                  currentUsername: String, modifier: Modifier = Modifier) {
+    val messages by groupChatViewModel.messages.collectAsStateWithLifecycle()
 
     DisposableEffect(Unit) {
-        chatViewModel.getAllMessages(chatRoomId)
+        groupChatViewModel.getAllMessages(groupId)
         onDispose {
-            chatViewModel.exitChat()
+            groupChatViewModel.exitChat()
         }
     }
 
-    val messages by chatViewModel.messages.collectAsStateWithLifecycle()
-    ChatScreen(
+    Log.d("Debug", "GroupChatRoot: $messages")
+    GroupChatScreen(
         messages = messages,
-        currentUserId = currentUserId,
-        modifier = modifier,
-        otherUserId = otherUserId,
-        otherUsername = otherUsername,
-        sendMessage = {
-                text ->
-            chatViewModel.sendMessage(chatRoomId, text, currentUsername)
-        })
-}
+        groupId = groupId,
+        groupName = groupName,
+        currentUserId = currentUserId
+    ) { text ->
+        groupChatViewModel.sendMessage(groupId = groupId, text = text, senderUsername = currentUsername)
+    }
 
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ChatScreen(
+fun GroupChatScreen (
     messages: List<Message>,
-    sendMessage: (text: String) -> Unit,
-    currentUserId: String?,
+    groupId: String,
+    groupName: String,
+    currentUserId: String,
     modifier: Modifier = Modifier,
-    otherUserId:String,
-    otherUsername: String
-) {
-
+    sendMessage: (String) -> Unit
+){
     var messageText by remember {
         mutableStateOf(TextFieldValue(""))
     }
@@ -103,7 +96,7 @@ fun ChatScreen(
                 ),
                 title = {
                     Text(
-                        text = otherUsername,
+                        text = groupName,
                         style = MaterialTheme.typography.titleLarge
                     )
                 }
@@ -183,7 +176,7 @@ fun ChatScreen(
             }
         }
         else {
-            
+
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -194,7 +187,7 @@ fun ChatScreen(
 
                 items(messages) {
                     MessageItem(
-                        currentUserId = currentUserId!!,
+                        currentUserId = currentUserId,
                         message = it
                     )
                     Spacer(Modifier.height(5.dp))
@@ -210,7 +203,7 @@ fun ChatScreen(
 
 @PreviewLightDark
 @Composable
-fun ChatScreenPreview(modifier: Modifier = Modifier) {
+fun GroupChatScreenPreview(modifier: Modifier = Modifier) {
     val sampleMessages = listOf(
         Message(text = "Yes, let's meet at 6 PM.", senderId = "u1", senderUsername = "Alice"),
         Message(text = "Are we still meeting today?", senderId = "u2", senderUsername = "Bob"),
@@ -220,9 +213,12 @@ fun ChatScreenPreview(modifier: Modifier = Modifier) {
     )
 
     ChatterBoxTheme {
-        ChatScreen(messages = sampleMessages, otherUserId = "u2", otherUsername = "Sample", currentUserId = "u1",
-            sendMessage = {
-
-            })
+        GroupChatScreen(
+            messages = sampleMessages,
+            groupId = "g1",
+            groupName = "Group",
+            currentUserId = "u1",
+            sendMessage = {}
+        )
     }
 }

@@ -1,7 +1,5 @@
 package com.example.chatterbox.chat.users.domain
 
-import com.example.chatterbox.chat.userChats.domain.Message
-import com.example.chatterbox.chat.users.domain.User
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 

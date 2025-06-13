@@ -9,6 +9,8 @@ object ListenerRegistry {
     object ListenerKeys {
         const val USER_CHATS_LISTENER = "USER_CHATS_LISTENER"
         const val CHATS_LISTENER = "CHATS_LISTENER"
+        const val GROUPS_LISTENER = "GROUPS_LISTENER"
+        const val GROUP_CHATS_LISTENER = "GROUP_CHATS_LISTENER"
     }
 
     fun register(key: String, registration: ListenerRegistration){

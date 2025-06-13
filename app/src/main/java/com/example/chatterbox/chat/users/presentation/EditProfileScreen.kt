@@ -91,17 +91,6 @@ fun EditProfileScreen(user: User?, loadState: LoadState, navController: NavContr
 
         Spacer(Modifier.height(15.dp))
 
-//        OutlinedTextField(
-//            modifier = Modifier.fillMaxWidth(),
-//            label = { Text("Username") },
-//            value = username ?: "",
-//            onValueChange = {
-//                username = it
-//            }
-//        )
-//
-//        Spacer(Modifier.height(15.dp))
-
         OutlinedTextField(
             modifier = Modifier.fillMaxWidth(),
             label = { Text("Description") },

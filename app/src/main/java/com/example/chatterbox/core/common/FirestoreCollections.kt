@@ -8,6 +8,7 @@ object FirestoreCollections {
     const val USERS = "users"
     const val USERCHATS = "userchats"
     const val CHATS = "chats"
+    const val GROUPS = "groups"
 }
 
 fun getRelativeTime(millis: Long): CharSequence {

@@ -41,6 +41,8 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.chatterbox.SignInScreenObject
+import com.example.chatterbox.chat.groups.presentation.GroupViewModel
+import com.example.chatterbox.chat.groups.presentation.GroupsRoot
 import com.example.chatterbox.chat.userChats.presentation.UserChatViewModel
 import com.example.chatterbox.chat.userChats.presentation.UserChatsRoot
 import com.example.chatterbox.chat.users.presentation.UserProfileRoot
@@ -53,6 +55,8 @@ import kotlinx.coroutines.launch
 fun ChatPagerScreen (
     userViewModel: UserViewModel,
     userChatViewModel: UserChatViewModel,
+    groupViewModel: GroupViewModel,
+    currentUserId: String,
     navController: NavController?,
     modifier: Modifier = Modifier
 ) {
@@ -75,7 +79,11 @@ fun ChatPagerScreen (
                 unselectedIcon = Icons.Outlined.Groups,
                 selectedIcon = Icons.Filled.Groups,
             ) {
-                Sample()
+                GroupsRoot(
+                    groupViewModel = groupViewModel,
+                    navController = navController!!,
+                    currentUserId = currentUserId
+                )
             },
             TabItem(
                 title = "Profile",

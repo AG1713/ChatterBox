@@ -14,7 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
-import com.example.chatterbox.chat.userChats.domain.Message
+import com.example.chatterbox.chat.shared.domain.Message
 import com.example.chatterbox.core.common.getRelativeTime
 import com.example.chatterbox.ui.theme.ChatterBoxTheme
 
@@ -43,6 +43,7 @@ fun MessageItem(modifier: Modifier = Modifier, currentUserId: String, message: M
                     if (yourMessage) Alignment.CenterEnd else Alignment.CenterStart
                 ),
             text = message.text,
+            sender = if (yourMessage) "You" else message.senderUsername,
             time = message.time
         )
 
@@ -51,11 +52,15 @@ fun MessageItem(modifier: Modifier = Modifier, currentUserId: String, message: M
 }
 
 @Composable
-fun ChatBubble(modifier: Modifier = Modifier, text: String, time: Long) {
+fun ChatBubble(modifier: Modifier = Modifier, text: String, sender: String, time: Long) {
     Column(
         modifier = modifier.padding(5.dp),
         verticalArrangement = Arrangement.Center
     ){
+        Text(
+            text = sender,
+            style = MaterialTheme.typography.labelSmall
+        )
         Text(
             text = text,
             style = MaterialTheme.typography.bodyMedium

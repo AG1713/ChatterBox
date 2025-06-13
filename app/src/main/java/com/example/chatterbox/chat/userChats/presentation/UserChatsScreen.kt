@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.chatterbox.SearchUsersRootObject
-import com.example.chatterbox.chat.userChats.domain.Member
+import com.example.chatterbox.chat.shared.domain.Member
 import com.example.chatterbox.chat.userChats.domain.UserChat
 import com.example.chatterbox.ui.theme.ChatterBoxTheme
 import com.google.firebase.auth.FirebaseAuth

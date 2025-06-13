@@ -1,17 +1,15 @@
 package com.example.chatterbox.chat.userChats.data
 
 import android.util.Log
-import com.example.chatterbox.chat.userChats.domain.Member
-import com.example.chatterbox.chat.userChats.domain.Message
+import com.example.chatterbox.chat.shared.domain.Member
+import com.example.chatterbox.chat.shared.domain.Message
 import com.example.chatterbox.chat.userChats.domain.UserChat
 import com.example.chatterbox.chat.userChats.domain.UserChatRepository
-import com.example.chatterbox.chat.users.domain.User
 import com.example.chatterbox.core.common.FirestoreCollections
 import com.example.chatterbox.core.common.ListenerRegistry
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
-import com.google.firebase.firestore.toObject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -47,9 +45,10 @@ class FirestoreUserChatRepository (
 
                     if (error != null || snapshot == null) {
                         Log.e(TAG, "getAllUserChatsForUser: $error")
+                        return@addSnapshotListener
                     }
 
-                    val userChats = snapshot!!.documents.mapNotNull {
+                    val userChats = snapshot.documents.mapNotNull {
                             doc ->
                         doc.toObject(UserChat::class.java)?.copy(id = doc.id)
                     }

@@ -1,4 +1,4 @@
-package com.example.chatterbox.chat.userChats.domain
+package com.example.chatterbox.chat.shared.domain
 
 data class Message(
     val text: String = "",

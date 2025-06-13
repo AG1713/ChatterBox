@@ -1,4 +1,4 @@
-package com.example.chatterbox.chat.userChats.presentation
+package com.example.chatterbox.chat.groups.presentation
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -20,27 +20,21 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.chatterbox.ChatScreenObject
+import com.example.chatterbox.GroupChatRootObject
 import com.example.chatterbox.R
-import com.example.chatterbox.chat.shared.domain.Member
-import com.example.chatterbox.chat.userChats.domain.UserChat
+import com.example.chatterbox.chat.groups.domain.Group
 import com.example.chatterbox.core.common.getRelativeTime
 import com.example.chatterbox.ui.components.RoundImage
-import com.example.chatterbox.ui.theme.ChatterBoxTheme
 
 @Composable
-fun UserChatItem(modifier: Modifier = Modifier, currentUserId: String?, userChat: UserChat, navController: NavController?) {
-    val TAG = "UserChatItem"
-
-    val id = if (userChat.members[0].id == currentUserId) userChat.members[1].id
-    else userChat.members[0].id
-    val username = if (userChat.members[0].id == currentUserId) userChat.members[1].username
-    else userChat.members[0].username
+fun GroupItem(group: Group, currentUserId: String, navController: NavController?, modifier: Modifier = Modifier) {
+    val TAG = "GroupItem"
 
     Row (
         modifier = modifier
             .fillMaxWidth()
             .clickable {
-                navController?.navigate(ChatScreenObject(id = id, chatRoomId = userChat.id, username = username))
+                navController?.navigate(GroupChatRootObject(groupId = group.id, groupName = group.name))
             }
             .padding(15.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -60,12 +54,12 @@ fun UserChatItem(modifier: Modifier = Modifier, currentUserId: String?, userChat
             verticalArrangement = Arrangement.SpaceAround
         ){
             Text(
-                text = username,
+                text = group.name,
                 fontSize = 17.sp
             )
-            val lastMessageUsername = if (userChat.lastMessageUserId == currentUserId) "You" else userChat.lastMessageUsername
+            val lastMessageUsername = if (group.lastMessageUserId == currentUserId) "You" else group.lastMessageUsername
             Text(
-                text = "${lastMessageUsername}: ${userChat.lastMessage}",
+                text = "${lastMessageUsername}: ${group.lastMessage}",
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -73,7 +67,7 @@ fun UserChatItem(modifier: Modifier = Modifier, currentUserId: String?, userChat
         }
 
         Text(
-            text = getRelativeTime(userChat.lastMessageTime).toString()
+            text = getRelativeTime(group.lastMessageTime).toString()
         )
 
     }
@@ -81,20 +75,6 @@ fun UserChatItem(modifier: Modifier = Modifier, currentUserId: String?, userChat
 
 @PreviewLightDark
 @Composable
-fun UserChatItemPreview(modifier: Modifier = Modifier) {
-    ChatterBoxTheme {
-        UserChatItem(
-            userChat = UserChat(
-                id = "1",
-                members = mutableListOf(Member("1", "User1"), Member("2","User1234")),
-                memberIds = mutableListOf("1", "NhZ187ifEKQSkk3Fkq5navKMBqG2"),
-                lastMessageTime = System.currentTimeMillis(),
-                lastMessageUserId = "1",
-                lastMessageUsername = "User1",
-                lastMessage = "Hello"
-            ),
-            currentUserId = "1",
-            navController = null
-        )
-    }
+fun GroupItemPreview(modifier: Modifier = Modifier) {
+
 }

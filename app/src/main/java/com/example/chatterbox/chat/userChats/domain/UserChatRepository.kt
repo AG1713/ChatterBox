@@ -1,6 +1,6 @@
 package com.example.chatterbox.chat.userChats.domain
 
-import kotlinx.coroutines.flow.MutableStateFlow
+import com.example.chatterbox.chat.shared.domain.Message
 import kotlinx.coroutines.flow.StateFlow
 
 interface UserChatRepository {

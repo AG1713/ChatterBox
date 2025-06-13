@@ -9,6 +9,11 @@ import androidx.navigation.toRoute
 import com.example.chatterbox.auth.presentation.AuthViewModel
 import com.example.chatterbox.auth.presentation.SignInScreen
 import com.example.chatterbox.chat.ChatPagerScreen
+import com.example.chatterbox.chat.groups.domain.Group
+import com.example.chatterbox.chat.groups.presentation.CreateGroupRoot
+import com.example.chatterbox.chat.groups.presentation.GroupChatRoot
+import com.example.chatterbox.chat.groups.presentation.GroupChatViewModel
+import com.example.chatterbox.chat.groups.presentation.GroupViewModel
 import com.example.chatterbox.chat.userChats.presentation.ChatRoot
 import com.example.chatterbox.chat.userChats.presentation.ChatViewModel
 import com.example.chatterbox.chat.userChats.presentation.SearchUsersRoot
@@ -27,6 +32,8 @@ fun AuthNavigator(modifier: Modifier = Modifier) {
     val userViewModel: UserViewModel = koinViewModel()
     val userChatViewModel: UserChatViewModel = koinViewModel()
     val chatViewModel: ChatViewModel = koinViewModel()
+    val groupViewModel: GroupViewModel = koinViewModel()
+    val groupChatViewModel: GroupChatViewModel = koinViewModel()
     val navController = rememberNavController()
 
     val startDestination = if (FirebaseAuth.getInstance().currentUser?.uid != null) {
@@ -44,15 +51,23 @@ fun AuthNavigator(modifier: Modifier = Modifier) {
             SignInScreen(authViewModel = authViewModel, navController = navController)
         }
         composable<ChatPagerScreenObject>{
-            ChatPagerScreen(userViewModel = userViewModel, userChatViewModel = userChatViewModel, navController = navController)
+            val currentUserId = FirebaseAuth.getInstance().currentUser!!.uid
+
+            ChatPagerScreen(
+                userViewModel = userViewModel,
+                userChatViewModel = userChatViewModel,
+                groupViewModel = groupViewModel,
+                navController = navController,
+                currentUserId = currentUserId
+            )
         }
         composable<UserChatsRootObject>{
             UserChatsRoot(userChatViewModel = userChatViewModel, navController = navController)
         }
         composable<ChatScreenObject>{
             val args = it.toRoute<ChatScreenObject>()
-            val currentUsername = userViewModel.user.value?.username
             val currentUserId = FirebaseAuth.getInstance().currentUser!!.uid
+            val currentUsername = userViewModel.user.value?.username
             ChatRoot(
                 chatViewModel = chatViewModel,
                 chatRoomId = args.chatRoomId,
@@ -71,6 +86,24 @@ fun AuthNavigator(modifier: Modifier = Modifier) {
         composable<EditProfileRootObject> {
             EditProfileRoot(userViewModel = userViewModel, navController = navController)
         }
+        composable<CreateGroupRootObject> {
+            val currentUsername = userViewModel.user.value?.username
+            CreateGroupRoot(groupViewModel = groupViewModel, navController = navController, currentUsername = currentUsername!!)
+        }
+        composable<GroupChatRootObject> {
+            val args = it.toRoute<GroupChatRootObject>()
+            val currentUserId = FirebaseAuth.getInstance().currentUser!!.uid
+            val currentUsername = userViewModel.user.value?.username
+
+            GroupChatRoot(
+                groupChatViewModel = groupChatViewModel,
+                groupId = args.groupId,
+                groupName = args.groupName,
+                currentUserId = currentUserId,
+                currentUsername = currentUsername!!
+            )
+        }
+
 
     }
 
@@ -100,3 +133,12 @@ object EditProfileRootObject
 
 @Serializable
 object SearchUsersRootObject
+
+@Serializable
+object CreateGroupRootObject
+
+@Serializable
+data class GroupChatRootObject(
+    val groupId: String,
+    val groupName: String
+)

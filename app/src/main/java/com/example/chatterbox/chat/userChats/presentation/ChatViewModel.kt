@@ -3,9 +3,7 @@ package com.example.chatterbox.chat.userChats.presentation
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.chatterbox.chat.userChats.domain.Message
 import com.example.chatterbox.chat.userChats.domain.UserChatRepository
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 class ChatViewModel (
