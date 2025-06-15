@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
@@ -30,11 +31,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.example.chatterbox.CreateGroupRootObject
+import com.example.chatterbox.GroupChatRootObject
 import com.example.chatterbox.R
 import com.example.chatterbox.ui.components.RoundImage
 import com.example.chatterbox.ui.theme.ChatterBoxTheme
@@ -43,14 +47,16 @@ import kotlinx.coroutines.flow.StateFlow
 @Composable
 fun CreateGroupRoot(groupViewModel: GroupViewModel, navController: NavController, currentUsername: String, modifier: Modifier = Modifier) {
     val loadState = groupViewModel.loadState.collectAsStateWithLifecycle()
-    CreateGroupScreen(loadState = loadState, modifier = modifier) { name, photoUrl, description ->
+    CreateGroupScreen(loadState = loadState, modifier = modifier) { name, description, photoUrl ->
         groupViewModel.createGroup(
             currentUsername = currentUsername,
             name = name,
-            photoUrl = photoUrl,
             description = description,
-        ) { groupId ->
-//            navController.navigate()
+            photoUrl = photoUrl,
+        ) { groupId, groupName ->
+            navController.navigate(GroupChatRootObject(groupId, groupName)) {
+                popUpTo<CreateGroupRootObject>() { inclusive = true }
+            }
         }
     }
 
@@ -108,7 +114,9 @@ fun CreateGroupScreen(modifier: Modifier = Modifier, loadState: State<LoadState>
                 value = name,
                 onValueChange = {
                     name = it
-                }
+                },
+                keyboardOptions = KeyboardOptions.Default
+                    .copy(capitalization = KeyboardCapitalization.Sentences)
             )
 
             Spacer(Modifier.height(25.dp))
@@ -119,7 +127,10 @@ fun CreateGroupScreen(modifier: Modifier = Modifier, loadState: State<LoadState>
                 value = description,
                 onValueChange = {
                     description = it
-                }
+                    Log.d(TAG, "CreateGroupScreen: $description")
+                },
+                keyboardOptions = KeyboardOptions.Default
+                    .copy(capitalization = KeyboardCapitalization.Sentences)
             )
 
             Spacer(Modifier.height(25.dp))

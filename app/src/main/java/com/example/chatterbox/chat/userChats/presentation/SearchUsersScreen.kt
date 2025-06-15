@@ -17,6 +17,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,6 +33,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.chatterbox.ChatScreenObject
+import com.example.chatterbox.SearchUsersRootObject
 import com.example.chatterbox.chat.users.domain.User
 import com.example.chatterbox.chat.users.presentation.UserViewModel
 import com.example.chatterbox.ui.theme.ChatterBoxTheme
@@ -40,7 +42,7 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun SearchUsersRoot(userChatViewModel: UserChatViewModel, userViewModel: UserViewModel, navController: NavController, modifier: Modifier = Modifier) {
-    val users by userChatViewModel.users.collectAsStateWithLifecycle()
+    val users = userChatViewModel.users.collectAsStateWithLifecycle()
     val currentUser by userViewModel.user.collectAsStateWithLifecycle()
 
     if (currentUser != null) {
@@ -62,7 +64,9 @@ fun SearchUsersRoot(userChatViewModel: UserChatViewModel, userViewModel: UserVie
                                 username = otherUsername,
                                 chatRoomId = chatRoomId
                             )
-                        )
+                        ) {
+                            popUpTo<SearchUsersRootObject>() { inclusive = true }
+                        }
                     })
             })
     }
@@ -70,12 +74,13 @@ fun SearchUsersRoot(userChatViewModel: UserChatViewModel, userViewModel: UserVie
 
 @Composable
 fun SearchUsersScreen(
-    users: List<User>,
+    users: State<List<User>>,
     currentUser: User,
     navController: NavController?,
     modifier: Modifier = Modifier,
     callViewModel: (String) -> Unit,
-    getOrCreateChat: (otherId: String, otherUsername: String, currentId: String, currentUsername: String) -> Unit) {
+    getOrCreateChat: (otherId: String, otherUsername: String, currentId: String, currentUsername: String) -> Unit
+) {
     val TAG = "SearchUsersScreen"
 
     var hint by remember {
@@ -109,7 +114,7 @@ fun SearchUsersScreen(
         }
     ) { padding ->
 
-        if (users.isEmpty()) {
+        if (users.value.isEmpty()) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -129,8 +134,8 @@ fun SearchUsersScreen(
                     .fillMaxWidth()
                     .padding(padding)
             ) {
-                items(users){ user ->
-                    UserItem(user = user, navController = navController, onClick = {
+                items(users.value){ user ->
+                    UserItem(user = user, onClick = {
                         getOrCreateChat(user.id, user.username, currentUser.id, currentUser.username)
                     })
 
@@ -145,9 +150,9 @@ fun SearchUsersScreen(
 @PreviewLightDark
 @Composable
 fun SearchUsersScreenPreview(modifier: Modifier = Modifier) {
-    ChatterBoxTheme {
-        SearchUsersScreen(
-            users = listOf(
+    val sampleUsers = remember {
+        mutableStateOf(
+            listOf(
                 User(
                     id = "u1",
                     username = "Alice",
@@ -178,7 +183,13 @@ fun SearchUsersScreenPreview(modifier: Modifier = Modifier) {
                     lastActive = System.currentTimeMillis() - 15 * 60 * 1000, // 15 mins ago
                     dateCreated = System.currentTimeMillis() - 365 * 24 * 60 * 60 * 1000L // 1 year ago
                 )
-            ),
+            )
+        )
+    }
+
+    ChatterBoxTheme {
+        SearchUsersScreen(
+            users = sampleUsers,
             currentUser = User(
                 id = "u1",
                 username = "Alice",

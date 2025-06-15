@@ -2,6 +2,7 @@ package com.example.chatterbox.chat.groups.presentation
 
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -43,6 +44,8 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
+import com.example.chatterbox.GroupInfoRootObject
 import com.example.chatterbox.chat.groups.domain.Group
 import com.example.chatterbox.chat.shared.domain.Message
 import com.example.chatterbox.chat.userChats.presentation.MessageItem
@@ -50,7 +53,7 @@ import com.example.chatterbox.ui.theme.ChatterBoxTheme
 
 @Composable
 fun GroupChatRoot(groupChatViewModel: GroupChatViewModel, groupId: String, groupName: String, currentUserId: String,
-                  currentUsername: String, modifier: Modifier = Modifier) {
+                  currentUsername: String, navController: NavController, modifier: Modifier = Modifier) {
     val messages by groupChatViewModel.messages.collectAsStateWithLifecycle()
 
     DisposableEffect(Unit) {
@@ -65,7 +68,8 @@ fun GroupChatRoot(groupChatViewModel: GroupChatViewModel, groupId: String, group
         messages = messages,
         groupId = groupId,
         groupName = groupName,
-        currentUserId = currentUserId
+        currentUserId = currentUserId,
+        navController = navController
     ) { text ->
         groupChatViewModel.sendMessage(groupId = groupId, text = text, senderUsername = currentUsername)
     }
@@ -79,6 +83,7 @@ fun GroupChatScreen (
     groupId: String,
     groupName: String,
     currentUserId: String,
+    navController: NavController?,
     modifier: Modifier = Modifier,
     sendMessage: (String) -> Unit
 ){
@@ -90,7 +95,9 @@ fun GroupChatScreen (
         modifier = modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
-
+                modifier = Modifier.clickable {
+                    navController?.navigate(GroupInfoRootObject(groupId = groupId, groupName = groupName))
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer
                 ),
@@ -218,6 +225,7 @@ fun GroupChatScreenPreview(modifier: Modifier = Modifier) {
             groupId = "g1",
             groupName = "Group",
             currentUserId = "u1",
+            navController = null,
             sendMessage = {}
         )
     }

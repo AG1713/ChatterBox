@@ -1,6 +1,7 @@
 package com.example.chatterbox.chat.userChats.presentation
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,7 +16,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -42,6 +43,8 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
+import com.example.chatterbox.UserInfoObject
 import com.example.chatterbox.chat.shared.domain.Message
 import com.example.chatterbox.ui.theme.ChatterBoxTheme
 
@@ -49,8 +52,9 @@ import com.example.chatterbox.ui.theme.ChatterBoxTheme
 @Composable
 fun ChatRoot(
     chatViewModel: ChatViewModel,
+    navController: NavController,
     modifier: Modifier = Modifier,
-    chatRoomId: String,
+    userChatId: String,
     otherUserId: String,
     otherUsername: String,
     currentUserId: String,
@@ -58,7 +62,7 @@ fun ChatRoot(
 ){
 
     DisposableEffect(Unit) {
-        chatViewModel.getAllMessages(chatRoomId)
+        chatViewModel.getAllMessages(userChatId)
         onDispose {
             chatViewModel.exitChat()
         }
@@ -66,6 +70,8 @@ fun ChatRoot(
 
     val messages by chatViewModel.messages.collectAsStateWithLifecycle()
     ChatScreen(
+        navController = navController,
+        userChatId = userChatId,
         messages = messages,
         currentUserId = currentUserId,
         modifier = modifier,
@@ -73,7 +79,7 @@ fun ChatRoot(
         otherUsername = otherUsername,
         sendMessage = {
                 text ->
-            chatViewModel.sendMessage(chatRoomId, text, currentUsername)
+            chatViewModel.sendMessage(userChatId, text, currentUsername)
         })
 }
 
@@ -81,6 +87,8 @@ fun ChatRoot(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatScreen(
+    navController: NavController?,
+    userChatId: String,
     messages: List<Message>,
     sendMessage: (text: String) -> Unit,
     currentUserId: String?,
@@ -97,7 +105,11 @@ fun ChatScreen(
         modifier = modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
-
+                modifier = Modifier.clickable {
+                    navController?.navigate(UserInfoObject(
+                        userChatId = userChatId, userId = otherUserId, username = otherUsername
+                    ))
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer
                 ),
@@ -155,7 +167,7 @@ fun ChatScreen(
                         .padding(bottom = 4.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Send,
+                        imageVector = Icons.AutoMirrored.Default.Send,
                         contentDescription = "Send button",
                         tint = Color.White,
                         modifier = Modifier
@@ -220,7 +232,7 @@ fun ChatScreenPreview(modifier: Modifier = Modifier) {
     )
 
     ChatterBoxTheme {
-        ChatScreen(messages = sampleMessages, otherUserId = "u2", otherUsername = "Sample", currentUserId = "u1",
+        ChatScreen(userChatId = "uc1", navController = null, messages = sampleMessages, otherUserId = "u2", otherUsername = "Sample", currentUserId = "u1",
             sendMessage = {
 
             })

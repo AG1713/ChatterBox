@@ -49,6 +49,7 @@ import com.example.chatterbox.EditProfileRootObject
 import com.example.chatterbox.R
 import com.example.chatterbox.chat.users.domain.User
 import com.example.chatterbox.core.common.getRelativeTime
+import com.example.chatterbox.ui.components.DescriptionCard
 import com.example.chatterbox.ui.components.RoundImage
 import com.example.chatterbox.ui.theme.ChatterBoxTheme
 
@@ -153,32 +154,6 @@ fun UserProfileScreen(
 
         }
 
-    }
-
-}
-
-@Composable
-fun DescriptionCard(title: String, description: String, modifier: Modifier = Modifier) {
-
-    Column (
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(25.dp))
-            .background(MaterialTheme.colorScheme.secondaryContainer)
-            .padding(15.dp),
-        horizontalAlignment = Alignment.Start,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(
-            text = title,
-            color = MaterialTheme.colorScheme.onSecondaryContainer,
-            style = MaterialTheme.typography.titleSmall
-        )
-        Text(
-            text = description,
-            color = MaterialTheme.colorScheme.onSecondaryContainer,
-            style = MaterialTheme.typography.bodyMedium
-        )
     }
 
 }

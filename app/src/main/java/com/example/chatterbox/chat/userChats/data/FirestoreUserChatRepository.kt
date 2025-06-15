@@ -90,6 +90,19 @@ class FirestoreUserChatRepository (
         return userChatId
     }
 
+    override suspend fun deleteUserChat(userChatId: String) {
+        val userChatRef = firestore.collection(FirestoreCollections.USERCHATS).document(userChatId)
+        val chats = userChatRef.collection(FirestoreCollections.CHATS).get().await()
+        val batch = firestore.batch()
+
+        // Chats need to be deleted individually since sub-collections are not deleted automatically
+        for (doc in chats.documents){
+            batch.delete(doc.reference)
+        }
+        batch.delete(userChatRef)
+        batch.commit().await()
+    }
+
     override fun getAllMessages(chatRoomId: String): StateFlow<List<Message>> {
         val messagesCollection = firestore
             .collection(FirestoreCollections.USERCHATS)

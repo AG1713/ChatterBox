@@ -1,10 +1,14 @@
 package com.example.chatterbox.chat.userChats.presentation
 
 import android.util.Log
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.chatterbox.chat.shared.domain.LoadState
 import com.example.chatterbox.chat.userChats.domain.UserChatRepository
 import com.example.chatterbox.chat.users.domain.UserRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class UserChatViewModel(
@@ -15,7 +19,9 @@ class UserChatViewModel(
 
     val userChats = userChatRepository.userChats
     val users = userRepository.users
-    val messages = userChatRepository.messages
+
+    private val _loadState = MutableStateFlow<LoadState>(LoadState.Idle)
+    val loadState: StateFlow<LoadState> = _loadState
 
     init {
         Log.d(TAG, "UserChatViewModel created")
@@ -60,6 +66,15 @@ class UserChatViewModel(
                 currentUsername = currentUsername
             )
             onComplete(chatRoomId)
+        }
+    }
+
+    fun deleteUserChat(userChatId: String, onComplete: () -> Unit) {
+        viewModelScope.launch {
+            _loadState.value = LoadState.Loading
+            userChatRepository.deleteUserChat(userChatId)
+            onComplete()
+            _loadState.value = LoadState.Idle
         }
     }
 

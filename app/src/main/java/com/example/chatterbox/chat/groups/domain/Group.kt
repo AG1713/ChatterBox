@@ -9,7 +9,7 @@ data class Group(
     val name: String = "",
     val groupPhotoUrl: String = "",
     val description: String = "",
-    val creationTimestamp: String = "",
+    val creationTimestamp: Long = System.currentTimeMillis(),
     val memberIds: List<String> = listOf(),
     val members: List<Member> = listOf(),
     val lastMessage: String = "",

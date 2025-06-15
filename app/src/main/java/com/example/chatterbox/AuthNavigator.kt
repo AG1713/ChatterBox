@@ -9,16 +9,17 @@ import androidx.navigation.toRoute
 import com.example.chatterbox.auth.presentation.AuthViewModel
 import com.example.chatterbox.auth.presentation.SignInScreen
 import com.example.chatterbox.chat.ChatPagerScreen
-import com.example.chatterbox.chat.groups.domain.Group
 import com.example.chatterbox.chat.groups.presentation.CreateGroupRoot
 import com.example.chatterbox.chat.groups.presentation.GroupChatRoot
 import com.example.chatterbox.chat.groups.presentation.GroupChatViewModel
+import com.example.chatterbox.chat.groups.presentation.GroupInfoRoot
 import com.example.chatterbox.chat.groups.presentation.GroupViewModel
 import com.example.chatterbox.chat.userChats.presentation.ChatRoot
 import com.example.chatterbox.chat.userChats.presentation.ChatViewModel
 import com.example.chatterbox.chat.userChats.presentation.SearchUsersRoot
 import com.example.chatterbox.chat.userChats.presentation.UserChatViewModel
 import com.example.chatterbox.chat.userChats.presentation.UserChatsRoot
+import com.example.chatterbox.chat.userChats.presentation.UserInfoRoot
 import com.example.chatterbox.chat.users.presentation.EditProfileRoot
 import com.example.chatterbox.chat.users.presentation.UserProfileRoot
 import com.example.chatterbox.chat.users.presentation.UserViewModel
@@ -70,7 +71,8 @@ fun AuthNavigator(modifier: Modifier = Modifier) {
             val currentUsername = userViewModel.user.value?.username
             ChatRoot(
                 chatViewModel = chatViewModel,
-                chatRoomId = args.chatRoomId,
+                navController = navController,
+                userChatId = args.chatRoomId,
                 otherUserId = args.id,
                 otherUsername = args.username,
                 currentUserId = currentUserId,
@@ -100,11 +102,33 @@ fun AuthNavigator(modifier: Modifier = Modifier) {
                 groupId = args.groupId,
                 groupName = args.groupName,
                 currentUserId = currentUserId,
-                currentUsername = currentUsername!!
+                currentUsername = currentUsername!!,
+                navController = navController
             )
         }
+        composable<GroupInfoRootObject>{
+            val args = it.toRoute<GroupChatRootObject>()
+            val groupId = args.groupId
 
+            GroupInfoRoot(
+                groupId = groupId,
+                groupViewModel = groupViewModel,
+                userChatViewModel = userChatViewModel,
+                userViewModel = userViewModel,
+                navController = navController
+            )
+        }
+        composable<UserInfoObject> {
+            val args = it.toRoute<UserInfoObject>()
 
+            UserInfoRoot(
+                userViewModel = userViewModel,
+                userChatViewModel = userChatViewModel,
+                userChatId = args.userChatId,
+                userId = args.userId,
+                navController = navController
+            )
+        }
     }
 
 }
@@ -141,4 +165,17 @@ object CreateGroupRootObject
 data class GroupChatRootObject(
     val groupId: String,
     val groupName: String
+)
+
+@Serializable
+data class GroupInfoRootObject(
+    val groupId: String,
+    val groupName: String
+)
+
+@Serializable
+data class UserInfoObject(
+    val userChatId: String,
+    val userId: String,
+    val username: String // Passed intentionally so that we don't get parameter not found error
 )

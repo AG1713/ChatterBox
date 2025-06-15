@@ -23,6 +23,9 @@ class UserViewModel(
     private val _user = MutableStateFlow<User?>(null)
     val user: StateFlow<User?> = _user
 
+    private val _otherUser = MutableStateFlow<User?>(null)
+    val otherUser: StateFlow<User?> = _otherUser
+
     private var _loadState = MutableStateFlow<LoadState>(LoadState.Idle)
     val loadState = _loadState
 
@@ -49,6 +52,22 @@ class UserViewModel(
             catch (e: NullPointerException){
                 Log.d(TAG, "culprit: $e")
             }
+        }
+    }
+
+    fun getUser(userId: String) {
+        viewModelScope.launch {
+            _loadState.value = LoadState.Loading
+            _otherUser.value = userRepository.getUserProfile(userId)
+            _loadState.value = LoadState.Idle
+        }
+    }
+
+    fun clearOtherUser(){
+        viewModelScope.launch {
+            _loadState.value = LoadState.Loading
+            _otherUser.value = null
+            _loadState.value = LoadState.Idle
         }
     }
 

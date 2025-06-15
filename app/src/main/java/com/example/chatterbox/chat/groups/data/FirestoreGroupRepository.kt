@@ -49,13 +49,23 @@ class FirestoreGroupRepository(
                     }
 
                     val groupsList = snapshot.documents.mapNotNull { doc ->
-                        doc.toObject(Group::class.java)
+                        try {
+                            doc.toObject(Group::class.java)
+                        } catch (e: Exception) {
+                            Log.e("DeserializationError", "Failed doc id=${doc.id}, data=${doc.data}, error=${e.message}")
+                            null
+                        }
                     }
 
                     _groups.value = groupsList
                 }
         )
         return groups
+    }
+
+    override suspend fun getGroup(groupId: String): Group? {
+        return firestore.collection(FirestoreCollections.GROUPS)
+            .document(groupId).get().await().toObject(Group::class.java)
     }
 
     override fun clearListeners(){
@@ -67,36 +77,53 @@ class FirestoreGroupRepository(
         val groupsCollection = firestore.collection(FirestoreCollections.GROUPS)
 
         val groupId = UUID.randomUUID().toString()
-        groupsCollection.document(groupId).set(
-            Group(
-                id = groupId,
-                name = name,
-                groupPhotoUrl = "",
-                description = description,
-                creationTimestamp = System.currentTimeMillis().toString(),
-                memberIds = listOf(currentUserId!!),
-                members = listOf(Member(currentUserId!!, currentUsername)),
-                lastMessage = "Created a group!",
-                lastMessageUserId = currentUserId!!,
-                lastMessageUsername = currentUsername,
-                lastMessageTime = System.currentTimeMillis()
-            )
-        ).await()
+        val group = Group(
+            id = groupId,
+            name = name,
+            groupPhotoUrl = "",
+            description = description,
+            creationTimestamp = System.currentTimeMillis(),
+            memberIds = listOf(currentUserId!!),
+            members = listOf(Member(currentUserId!!, currentUsername)),
+            lastMessage = "Created a group!",
+            lastMessageUserId = currentUserId!!,
+            lastMessageUsername = currentUsername,
+            lastMessageTime = System.currentTimeMillis()
+        )
+        groupsCollection.document(groupId).set(group).await()
+
+        Log.d(TAG, "createGroup: $group")
 
         return groupId
     }
 
     override fun addMembers(groupId: String, memberIds: List<String>, members: List<Member>) {
         // Intentionally kept to accept a list to expand in future later
+        /*
+        the spread operator is *, and it's used to pass an array (or array-like collection)
+        into a function that expects vararg parameters (i.e., a variable number of arguments).
+        */
         val group = firestore.collection(FirestoreCollections.GROUPS).document(groupId)
-        group.update("memberIds", FieldValue.arrayUnion(memberIds))
-        group.update("members", FieldValue.arrayUnion(members))
+        group.update("memberIds", FieldValue.arrayUnion(*memberIds.toTypedArray()))
+        group.update("members", FieldValue.arrayUnion(*members.toTypedArray()))
     }
 
     override fun leaveGroup(groupId: String, userId: String, username: String) {
         val group = firestore.collection(FirestoreCollections.GROUPS).document(groupId)
-        group.update("memberIds", FieldValue.arrayUnion(userId))
-        group.update("members", FieldValue.arrayUnion(Member(userId, username)))
+
+        val batch = firestore.batch()
+        batch.update(group, "memberIds", FieldValue.arrayRemove(userId))
+        batch.update(group, "members", FieldValue.arrayRemove(Member(userId, username)))
+        batch.commit().addOnSuccessListener {
+            group.get().addOnSuccessListener { snapshot ->
+                val groupObj = snapshot.toObject(Group::class.java)
+                val members = groupObj?.members
+                if (members.isNullOrEmpty()) group.delete()
+            }
+                .addOnFailureListener{ Log.e("LeaveGroup", "Failed to check group: ${it.message}") }
+        }
+            .addOnFailureListener{ Log.e("LeaveGroup", "Failed to update group: ${it.message}") }
+
     }
 
     override fun getAllMessages(groupId: String): StateFlow<List<Message>> {

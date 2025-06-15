@@ -21,4 +21,5 @@ interface GroupRepository {
     fun clearMessagesStateFlow()
     fun clearChatsListener()
     fun sendMessage(groupId: String, senderUsername: String, text: String)
+    suspend fun getGroup(groupId: String): Group?
 }

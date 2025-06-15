@@ -19,4 +19,5 @@ interface UserChatRepository {
     fun sendMessage(chatRoomId: String, senderUsername: String, text: String)
     fun clearChatsListener()
     fun clearMessagesStateFlow()
+    suspend fun deleteUserChat(userChatId: String)
 }

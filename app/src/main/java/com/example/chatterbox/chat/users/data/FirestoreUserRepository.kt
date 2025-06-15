@@ -74,20 +74,19 @@ class FirestoreUserRepository (
         }
 
         try {
-            firestore.collection(FirestoreCollections.USERS)
+            val snapshot = firestore.collection(FirestoreCollections.USERS)
                 .whereGreaterThanOrEqualTo("username", hint)
                 .whereLessThan("username", hint + "\uf8ff")
+                .whereNotEqualTo("id", currentUserId)
                 .orderBy("username")
                 .get()
-                .addOnSuccessListener { userList ->
+                .await()
 
-                    val users = userList!!.documents.mapNotNull { doc ->
-                        doc.toObject(User::class.java)
-                    }
+            val users = snapshot.documents.mapNotNull { doc ->
+                doc.toObject(User::class.java)
+            }
 
-                    _users.value = users
-
-                }
+            _users.value = users
         }
         catch (e: Exception){
             Log.e(TAG, "searchUsers: ${e.message}", )

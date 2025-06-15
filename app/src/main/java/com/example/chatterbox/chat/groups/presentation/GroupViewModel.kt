@@ -2,6 +2,7 @@ package com.example.chatterbox.chat.groups.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.chatterbox.chat.groups.domain.Group
 import com.example.chatterbox.chat.groups.domain.GroupRepository
 import com.example.chatterbox.chat.shared.domain.Member
 import kotlinx.coroutines.delay
@@ -15,10 +16,28 @@ class GroupViewModel(
     val groups = groupRepository.groups
     private val _loadState = MutableStateFlow<LoadState>(LoadState.Idle)
     val loadState = _loadState.asStateFlow()
+    private val _currentGroup = MutableStateFlow<Group?>(null)
+    val currentGroup = _currentGroup.asStateFlow()
 
     fun getAllGroups(){
         viewModelScope.launch {
             groupRepository.getAllGroups()
+        }
+    }
+
+    fun getGroup(groupId: String){
+        viewModelScope.launch {
+            _loadState.value = LoadState.Loading
+            _currentGroup.value = groupRepository.getGroup(groupId)
+            _loadState.value = LoadState.Idle
+        }
+    }
+
+    fun clearCurrentGroupStateFlow(){
+        viewModelScope.launch {
+            _loadState.value = LoadState.Loading
+            _currentGroup.value = null
+            _loadState.value = LoadState.Idle
         }
     }
 
@@ -28,7 +47,7 @@ class GroupViewModel(
         }
     }
 
-    fun createGroup(currentUsername: String, name: String, photoUrl: String, description: String, onComplete: (String) -> Unit) {
+    fun createGroup(currentUsername: String, name: String, photoUrl: String, description: String, onComplete: (String, String) -> Unit) {
         viewModelScope.launch {
             _loadState.value = LoadState.Loading
             val groupId = groupRepository.createGroup(
@@ -39,7 +58,7 @@ class GroupViewModel(
             )
             _loadState.value = LoadState.Idle
 
-            onComplete(groupId)
+            onComplete(groupId, name)
         }
     }
 
@@ -55,7 +74,7 @@ class GroupViewModel(
         _loadState.value = LoadState.Idle
     }
 
-    fun leaveGroup(groupId: String, userId: String, username: String) {
+    fun leaveGroup(groupId: String, userId: String, username: String, onComplete: () -> Unit) {
         viewModelScope.launch {
             _loadState.value = LoadState.Loading
             groupRepository.leaveGroup(
@@ -63,6 +82,7 @@ class GroupViewModel(
                 userId = userId,
                 username = username
             )
+            onComplete()
             _loadState.value = LoadState.Idle
         }
     }
