@@ -7,6 +7,7 @@ import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -19,8 +20,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -52,9 +55,14 @@ import org.koin.androidx.compose.koinViewModel
 const val TAG: String = "SignInScreen"
 
 @Composable
-fun SignInScreen(authViewModel: AuthViewModel, navController: NavController, modifier: Modifier = Modifier) {
+fun SignInRoot(authViewModel: AuthViewModel, navController: NavController, modifier: Modifier = Modifier) {
 
-    val authViewModel = koinViewModel<AuthViewModel>()
+    SignInScreen(authViewModel = authViewModel, navController = navController)
+}
+
+@Composable
+fun SignInScreen(authViewModel: AuthViewModel, navController: NavController?, modifier: Modifier = Modifier) {
+
     val context = LocalContext.current
     val googleSignInClient = GoogleSignIn.getClient(context, GoogleSignInOptions.DEFAULT_SIGN_IN)
     
@@ -82,7 +90,7 @@ fun SignInScreen(authViewModel: AuthViewModel, navController: NavController, mod
                 if (idToken != null){
                     authViewModel.viewModelScope.launch {
                         authViewModel.signInWithGoogle(idToken)
-                        navController.navigate(ChatPagerScreenObject) {
+                        navController?.navigate(ChatPagerScreenObject) {
                             popUpTo<SignInScreenObject> { inclusive = true }
                         }
                     }
@@ -113,6 +121,7 @@ fun SignInScreen(authViewModel: AuthViewModel, navController: NavController, mod
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
                 .padding(16.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
@@ -121,16 +130,24 @@ fun SignInScreen(authViewModel: AuthViewModel, navController: NavController, mod
             Text(
                 text = "Let's get up signed up!",
                 fontSize = 28.sp,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onBackground
             )
             Spacer(Modifier.fillMaxHeight(0.05f))
             Text(
                 text = "Sign In using Google to continue",
                 fontSize = 16.sp,
+                color = MaterialTheme.colorScheme.onBackground
             )
             Spacer(Modifier.height(25.dp))
             Button(
                 modifier = Modifier.fillMaxWidth(),
+                colors = ButtonColors(
+                    containerColor = Color(0xFF3367D6),
+                    contentColor = Color(0xFFFFFFFF),
+                    disabledContentColor = MaterialTheme.colorScheme.onErrorContainer,
+                    disabledContainerColor = MaterialTheme.colorScheme.errorContainer
+                ),
                 onClick = { signInWithGoogle(context, launcher) }
             ) {
                 Box(
@@ -146,7 +163,7 @@ fun SignInScreen(authViewModel: AuthViewModel, navController: NavController, mod
                     )
                     Text(
                         modifier = Modifier.align(Alignment.Center),
-                        text = "Sign in with Google"
+                        text = "Sign in with Google",
                     )
                 }
             }
@@ -185,47 +202,8 @@ fun signInWithGoogle(
 @PreviewLightDark
 @Composable
 fun SignInScreenPreview(modifier: Modifier = Modifier) {
+    val authViewModel = koinViewModel<AuthViewModel>()
     ChatterBoxTheme {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-
-            Text(
-                text = "Let's get up signed up!",
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(Modifier.fillMaxHeight(0.05f))
-            Text(
-                text = "Sign In using Google to continue",
-                fontSize = 24.sp,
-            )
-            Spacer(Modifier.height(25.dp))
-            Button(
-                modifier = Modifier.fillMaxWidth(),
-                onClick = {  }
-            ) {
-                Box(
-                    modifier = Modifier
-                        .height(24.dp)
-                        .fillMaxWidth(),
-                ){
-                    Icon(
-                        painter = painterResource(id = R.drawable.google_logo),
-                        contentDescription = "Google logo",
-                        modifier = Modifier.fillMaxHeight(), // Fills the container
-                        tint = Color.Unspecified // Use original colors
-                    )
-                    Text(
-                        modifier = Modifier.align(Alignment.Center),
-                        text = "Sign in with Google"
-                    )
-                }
-            }
-        }
+        SignInScreen(authViewModel = authViewModel, navController = null)
     }
 }

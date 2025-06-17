@@ -12,15 +12,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -36,22 +33,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.chatterbox.ChatPagerScreenObject
-import com.example.chatterbox.EditProfileRootObject
-import com.example.chatterbox.R
 import com.example.chatterbox.chat.users.domain.User
 import com.example.chatterbox.chat.users.presentation.LoadState
 import com.example.chatterbox.chat.users.presentation.UserViewModel
 import com.example.chatterbox.core.common.getRelativeTime
 import com.example.chatterbox.ui.components.DescriptionCard
 import com.example.chatterbox.ui.components.RoundImage
+import com.example.chatterbox.ui.theme.ChatterBoxTheme
 
 @Composable
 fun UserInfoRoot(userViewModel: UserViewModel, userChatViewModel: UserChatViewModel, userChatId: String, userId: String, navController: NavController, modifier: Modifier = Modifier) {
@@ -157,10 +152,10 @@ fun UserInfoScreen(user: State<User?>, loadState: State<LoadState>,
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-
+                val online = ((System.currentTimeMillis() - user.value!!.lastActive) < 2_40_000)
                 RoundImage(
-                    image = painterResource(R.drawable.google_logo),
-                    showDot = (user.value!!.status == "Online"),
+                    model = user.value!!.profilePhotoUrl,
+                    showDot = online,
                     modifier = Modifier.size(125.dp)
                 )
 
@@ -191,7 +186,7 @@ fun UserInfoScreen(user: State<User?>, loadState: State<LoadState>,
 
                 Spacer(Modifier.height(15.dp))
 
-                if (user.value!!.status != "Online"){
+                if (!online){
                     DescriptionCard(
                         "Last online",
                         getRelativeTime(user.value!!.lastActive).toString()
@@ -204,5 +199,37 @@ fun UserInfoScreen(user: State<User?>, loadState: State<LoadState>,
 
     }
 
+}
+
+@PreviewLightDark
+@Composable
+fun UserInfoScreenPreview(modifier: Modifier = Modifier) {
+    val sampleUser = remember {
+        mutableStateOf(
+            User(
+                id = "123",
+                username = "Avdhoot",
+                email = "avdhoot@example.com",
+                description = "Engineering student & coder",
+                profilePhotoUrl = "https://example.com/photo.jpg",
+                lastActive = System.currentTimeMillis(),
+                dateCreated = System.currentTimeMillis() - 1000000,
+                messageToken = "dummy_token_abc123"
+            )
+        )
+    }
+
+    val loadState = remember { mutableStateOf(LoadState.Success) }
+    val deleteState = remember { mutableStateOf(com.example.chatterbox.chat.shared.domain.LoadState.Idle) }
+
+    ChatterBoxTheme {
+        UserInfoScreen(
+            user = sampleUser,
+            loadState = loadState,
+            deleteLoadState = deleteState,
+            navController = null,
+            deleteChat = {}
+        )
+    }
 }
 

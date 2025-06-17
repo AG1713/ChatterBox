@@ -42,20 +42,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.example.chatterbox.BuildConfig
 import com.example.chatterbox.ChatPagerScreenObject
-import com.example.chatterbox.R
 import com.example.chatterbox.chat.groups.domain.Group
 import com.example.chatterbox.chat.shared.domain.Member
 import com.example.chatterbox.ui.components.SearchUsersBottomSheet
 import com.example.chatterbox.chat.userChats.presentation.UserChatViewModel
 import com.example.chatterbox.chat.users.domain.User
 import com.example.chatterbox.chat.users.presentation.UserViewModel
+import com.example.chatterbox.core.common.SupabaseBuckets
 import com.example.chatterbox.core.common.getRelativeTime
 import com.example.chatterbox.ui.components.DescriptionCard
 import com.example.chatterbox.ui.components.RoundImage
@@ -196,8 +196,7 @@ fun GroupInfoScreen(group: Group?, loadState: State<LoadState>, users: State<Lis
             ) {
 
                 RoundImage(
-                    image = painterResource(R.drawable.google_logo),
-                    showDot = false,
+                    model = group.groupPhotoUrl,
                     modifier = Modifier.size(125.dp)
                 )
 
@@ -228,7 +227,7 @@ fun GroupInfoScreen(group: Group?, loadState: State<LoadState>, users: State<Lis
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(25.dp))
-                        .background(MaterialTheme.colorScheme.secondaryContainer)
+                        .background(MaterialTheme.colorScheme.surfaceContainerHigh)
                         .padding(15.dp),
                     columns = GridCells.Fixed(3),
                 ) {
@@ -266,7 +265,7 @@ fun MemberDisplay(member: Member, modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.Center
     ) {
         RoundImage(
-            image = painterResource(R.drawable.google_logo),
+            model = "${BuildConfig.SUPABASE_URL}storage/v1/object/public/${SupabaseBuckets.USER_PHOTOS}/${member.id}",
             showDot = false,
             modifier = Modifier.size(75.dp)
         )
@@ -277,7 +276,10 @@ fun MemberDisplay(member: Member, modifier: Modifier = Modifier) {
                 .background(Color.White, shape = CircleShape)
                 .padding(5.dp),
         ) {
-            Text(member.username)
+            Text(
+                text = member.username,
+                color = MaterialTheme.colorScheme.background
+            )
         }
     }
 
@@ -296,7 +298,6 @@ fun GroupInfoScreenPreview(modifier: Modifier = Modifier) {
                     email = "alice@example.com",
                     description = "Nature lover and tech enthusiast.",
                     profilePhotoUrl = "https://example.com/photos/alice.jpg",
-                    status = "online",
                     lastActive = System.currentTimeMillis() - 5 * 60 * 1000, // 5 minutes ago
                     dateCreated = System.currentTimeMillis() - 100 * 24 * 60 * 60 * 1000L // 100 days ago
                 ),
@@ -306,7 +307,6 @@ fun GroupInfoScreenPreview(modifier: Modifier = Modifier) {
                     email = "bob@example.com",
                     description = "Coffee addict and Android dev.",
                     profilePhotoUrl = "https://example.com/photos/bob.jpg",
-                    status = "offline",
                     lastActive = System.currentTimeMillis() - 2 * 60 * 60 * 1000, // 2 hours ago
                     dateCreated = System.currentTimeMillis() - 200 * 24 * 60 * 60 * 1000L
                 ),
@@ -316,7 +316,6 @@ fun GroupInfoScreenPreview(modifier: Modifier = Modifier) {
                     email = "charlie@example.com",
                     description = "Loves gaming and music.",
                     profilePhotoUrl = "https://example.com/photos/charlie.jpg",
-                    status = "idle",
                     lastActive = System.currentTimeMillis() - 15 * 60 * 1000, // 15 mins ago
                     dateCreated = System.currentTimeMillis() - 365 * 24 * 60 * 60 * 1000L // 1 year ago
                 )

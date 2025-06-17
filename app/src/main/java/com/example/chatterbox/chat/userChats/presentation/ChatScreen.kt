@@ -105,7 +105,9 @@ fun ChatScreen(
         modifier = modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
-                modifier = Modifier.clickable {
+                modifier = Modifier
+                    .background(MaterialTheme.colorScheme.primaryContainer)
+                    .clickable {
                     navController?.navigate(UserInfoObject(
                         userChatId = userChatId, userId = otherUserId, username = otherUsername
                     ))
@@ -116,7 +118,8 @@ fun ChatScreen(
                 title = {
                     Text(
                         text = otherUsername,
-                        style = MaterialTheme.typography.titleLarge
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                 }
             )
@@ -200,7 +203,7 @@ fun ChatScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(padding)
-                    .padding(5.dp),
+                    .padding(horizontal = 5.dp),
                 reverseLayout = true
             ) {
 

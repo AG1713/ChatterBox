@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -19,10 +20,12 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.chatterbox.BuildConfig
 import com.example.chatterbox.ChatScreenObject
 import com.example.chatterbox.R
 import com.example.chatterbox.chat.shared.domain.Member
 import com.example.chatterbox.chat.userChats.domain.UserChat
+import com.example.chatterbox.core.common.SupabaseBuckets
 import com.example.chatterbox.core.common.getRelativeTime
 import com.example.chatterbox.ui.components.RoundImage
 import com.example.chatterbox.ui.theme.ChatterBoxTheme
@@ -31,26 +34,32 @@ import com.example.chatterbox.ui.theme.ChatterBoxTheme
 fun UserChatItem(modifier: Modifier = Modifier, currentUserId: String?, userChat: UserChat, navController: NavController?) {
     val TAG = "UserChatItem"
 
-    val id = if (userChat.members[0].id == currentUserId) userChat.members[1].id
+    val youFlag = (userChat.members[0].id == currentUserId)
+    val id = if (youFlag) userChat.members[1].id
     else userChat.members[0].id
-    val username = if (userChat.members[0].id == currentUserId) userChat.members[1].username
+    val username = if (youFlag) userChat.members[1].username
     else userChat.members[0].username
 
     Row (
         modifier = modifier
             .fillMaxWidth()
             .clickable {
-                navController?.navigate(ChatScreenObject(id = id, chatRoomId = userChat.id, username = username))
+                navController?.navigate(
+                    ChatScreenObject(
+                        id = id,
+                        chatRoomId = userChat.id,
+                        username = username
+                    )
+                )
             }
             .padding(15.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
 
         RoundImage(
-            image = painterResource(R.drawable.google_logo),
+            model = "${BuildConfig.SUPABASE_URL}storage/v1/object/public/${SupabaseBuckets.USER_PHOTOS}/$id.jpg",
             modifier = Modifier
-                .size(50.dp),
-            showDot = false
+                .size(50.dp)
         )
 
         Spacer(modifier.width(25.dp))
@@ -61,19 +70,22 @@ fun UserChatItem(modifier: Modifier = Modifier, currentUserId: String?, userChat
         ){
             Text(
                 text = username,
-                fontSize = 17.sp
+                fontSize = 17.sp,
+                color = MaterialTheme.colorScheme.onBackground
             )
             val lastMessageUsername = if (userChat.lastMessageUserId == currentUserId) "You" else userChat.lastMessageUsername
             Text(
                 text = "${lastMessageUsername}: ${userChat.lastMessage}",
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
+                color = MaterialTheme.colorScheme.onBackground
             )
 
         }
 
         Text(
-            text = getRelativeTime(userChat.lastMessageTime).toString()
+            text = getRelativeTime(userChat.lastMessageTime).toString(),
+            color = MaterialTheme.colorScheme.onBackground
         )
 
     }

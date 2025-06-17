@@ -21,12 +21,22 @@ android {
     }
 
     buildTypes {
+
+        debug {
+            buildConfigField("String", "SUPABASE_URL", "\"https://lhvqciwwwjvtaefhyiey.supabase.co/\"")
+            buildConfigField("String", "SUPABASE_KEY", "\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxodnFjaXd3d2p2dGFlZmh5aWV5Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MDAwNTYxOCwiZXhwIjoyMDY1NTgxNjE4fQ.vEtCWe2H4y7genGilERNZLy_PFWw1JF8vmKcnvtis_w\"")
+        }
+        
         release {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+
+            // Supabase urls
+            buildConfigField("String", "SUPABASE_URL", "\"https://lhvqciwwwjvtaefhyiey.supabase.co/\"")
+            buildConfigField("String", "SUPABASE_KEY", "\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxodnFjaXd3d2p2dGFlZmh5aWV5Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MDAwNTYxOCwiZXhwIjoyMDY1NTgxNjE4fQ.vEtCWe2H4y7genGilERNZLy_PFWw1JF8vmKcnvtis_w\"")
         }
     }
     compileOptions {
@@ -38,6 +48,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -80,6 +91,9 @@ dependencies {
     // Authentication
     implementation(libs.firebase.auth)
 
+    // Messaging
+    implementation(libs.firebase.messaging)
+
     // Dependencies for the Credential Manager libraries and specify their versions
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)
@@ -98,5 +112,15 @@ dependencies {
     // Serialization
     // JSON serialization library, works with the Kotlin serialization plugin
     implementation(libs.kotlinx.serialization.json)
+
+    // Retrofit
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+
+    // okHttp
+    implementation(libs.okhttp)
+
+    // coil
+    implementation(libs.coil.compose)
 
 }

@@ -145,7 +145,6 @@ fun SearchUsersBottomSheetPreview(modifier: Modifier = Modifier) {
                     email = "alice@example.com",
                     description = "Nature lover and tech enthusiast.",
                     profilePhotoUrl = "https://example.com/photos/alice.jpg",
-                    status = "online",
                     lastActive = System.currentTimeMillis() - 5 * 60 * 1000, // 5 minutes ago
                     dateCreated = System.currentTimeMillis() - 100 * 24 * 60 * 60 * 1000L // 100 days ago
                 ),
@@ -155,7 +154,6 @@ fun SearchUsersBottomSheetPreview(modifier: Modifier = Modifier) {
                     email = "bob@example.com",
                     description = "Coffee addict and Android dev.",
                     profilePhotoUrl = "https://example.com/photos/bob.jpg",
-                    status = "offline",
                     lastActive = System.currentTimeMillis() - 2 * 60 * 60 * 1000, // 2 hours ago
                     dateCreated = System.currentTimeMillis() - 200 * 24 * 60 * 60 * 1000L
                 ),
@@ -165,7 +163,6 @@ fun SearchUsersBottomSheetPreview(modifier: Modifier = Modifier) {
                     email = "charlie@example.com",
                     description = "Loves gaming and music.",
                     profilePhotoUrl = "https://example.com/photos/charlie.jpg",
-                    status = "idle",
                     lastActive = System.currentTimeMillis() - 15 * 60 * 1000, // 15 mins ago
                     dateCreated = System.currentTimeMillis() - 365 * 24 * 60 * 60 * 1000L // 1 year ago
                 )

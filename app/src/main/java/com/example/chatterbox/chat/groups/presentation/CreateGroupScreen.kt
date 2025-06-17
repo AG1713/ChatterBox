@@ -1,5 +1,6 @@
 package com.example.chatterbox.chat.groups.presentation
 
+import android.net.Uri
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -69,7 +70,7 @@ fun CreateGroupScreen(modifier: Modifier = Modifier, loadState: State<LoadState>
     var name by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     // TODO: Edit this after adding the functionality of uploading the profile photo
-    var photoUrl by remember { mutableStateOf("") }
+    var uri by remember { mutableStateOf<Uri?>(null) }
     val context = LocalContext.current
 
 
@@ -101,7 +102,7 @@ fun CreateGroupScreen(modifier: Modifier = Modifier, loadState: State<LoadState>
         ) {
 
             RoundImage(
-                image = painterResource(R.drawable.google_logo),
+                model = uri,
                 modifier = Modifier.size(125.dp),
                 showDot = false
             )

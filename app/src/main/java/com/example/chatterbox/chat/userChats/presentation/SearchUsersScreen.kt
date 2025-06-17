@@ -3,7 +3,6 @@ package com.example.chatterbox.chat.userChats.presentation
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -15,7 +14,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
@@ -38,7 +36,6 @@ import com.example.chatterbox.chat.users.domain.User
 import com.example.chatterbox.chat.users.presentation.UserViewModel
 import com.example.chatterbox.ui.theme.ChatterBoxTheme
 import kotlinx.coroutines.delay
-import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun SearchUsersRoot(userChatViewModel: UserChatViewModel, userViewModel: UserViewModel, navController: NavController, modifier: Modifier = Modifier) {
@@ -159,7 +156,6 @@ fun SearchUsersScreenPreview(modifier: Modifier = Modifier) {
                     email = "alice@example.com",
                     description = "Nature lover and tech enthusiast.",
                     profilePhotoUrl = "https://example.com/photos/alice.jpg",
-                    status = "online",
                     lastActive = System.currentTimeMillis() - 5 * 60 * 1000, // 5 minutes ago
                     dateCreated = System.currentTimeMillis() - 100 * 24 * 60 * 60 * 1000L // 100 days ago
                 ),
@@ -169,7 +165,6 @@ fun SearchUsersScreenPreview(modifier: Modifier = Modifier) {
                     email = "bob@example.com",
                     description = "Coffee addict and Android dev.",
                     profilePhotoUrl = "https://example.com/photos/bob.jpg",
-                    status = "offline",
                     lastActive = System.currentTimeMillis() - 2 * 60 * 60 * 1000, // 2 hours ago
                     dateCreated = System.currentTimeMillis() - 200 * 24 * 60 * 60 * 1000L
                 ),
@@ -179,7 +174,6 @@ fun SearchUsersScreenPreview(modifier: Modifier = Modifier) {
                     email = "charlie@example.com",
                     description = "Loves gaming and music.",
                     profilePhotoUrl = "https://example.com/photos/charlie.jpg",
-                    status = "idle",
                     lastActive = System.currentTimeMillis() - 15 * 60 * 1000, // 15 mins ago
                     dateCreated = System.currentTimeMillis() - 365 * 24 * 60 * 60 * 1000L // 1 year ago
                 )
@@ -196,7 +190,6 @@ fun SearchUsersScreenPreview(modifier: Modifier = Modifier) {
                 email = "alice@example.com",
                 description = "Nature lover and tech enthusiast.",
                 profilePhotoUrl = "https://example.com/photos/alice.jpg",
-                status = "online",
                 lastActive = System.currentTimeMillis() - 5 * 60 * 1000, // 5 mins ago
                 dateCreated = System.currentTimeMillis() - 100 * 24 * 60 * 60 * 1000L // 100 days ago
             ),

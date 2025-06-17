@@ -32,7 +32,11 @@ class FirestoreUserRepository (
         if (!snapshot.exists()){
             userDoc.set(user)
         }
+    }
 
+    override suspend fun updateMessageToken(userId: String, messageToken: String) {
+        val user = firestore.collection(FirestoreCollections.USERS).document(userId)
+        user.update("messageToken", messageToken).await()
     }
 
     override suspend fun getCurrentUserProfile(): User? {

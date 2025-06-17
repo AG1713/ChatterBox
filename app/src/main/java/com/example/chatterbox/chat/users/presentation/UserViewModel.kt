@@ -1,11 +1,16 @@
 package com.example.chatterbox.chat.users.presentation
 
+import android.content.Context
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.chatterbox.chat.shared.domain.StorageRepository
 import com.example.chatterbox.chat.users.data.FirestoreUserRepository
 import com.example.chatterbox.chat.users.domain.User
 import com.example.chatterbox.chat.users.domain.UserRepository
+import com.example.chatterbox.core.common.convertToJpeg
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -16,7 +21,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class UserViewModel(
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val storageRepository: StorageRepository
 ): ViewModel() {
     val TAG = "UserViewModel"
     
@@ -71,22 +77,26 @@ class UserViewModel(
         }
     }
 
-    fun updateCurrentUser(user: User) {
+    fun updateCurrentUser(user: User, convertFunction: () -> ByteArray?) {
         Log.d(TAG, "Entered updateCurrentUser")
 
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             Log.d(TAG, "Inside launch")
 
+            _loadState.value = LoadState.Loading
+            var byteArray: ByteArray? = null
+            byteArray = convertFunction()
+            // Delegating a function to perform 'convertToJpeg' since,
+            // 1. Loading remains consistent
+            // 2. Context should not be passed to viewmodel
+
             try {
-                _loadState.value = LoadState.Loading
-                Log.d(TAG, "Before updateUserProfile")
-
                 userRepository.updateUserProfile(user)
-
-                Log.d(TAG, "After updateUserProfile")
+                if (byteArray != null) {
+                    storageRepository.uploadImage(bytes = byteArray, fileName = user.id)
+                }
 
                 getCurrentUser()
-
                 _loadState.value = LoadState.Success
             } catch (e: Exception) {
                 Log.e(TAG, "Error in updateCurrentUser", e)

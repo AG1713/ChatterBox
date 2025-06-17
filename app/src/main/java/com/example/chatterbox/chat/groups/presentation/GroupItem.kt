@@ -41,10 +41,9 @@ fun GroupItem(group: Group, currentUserId: String, navController: NavController?
     ) {
 
         RoundImage(
-            image = painterResource(R.drawable.google_logo),
+            model = group.groupPhotoUrl,
             modifier = Modifier
                 .size(50.dp),
-            showDot = false
         )
 
         Spacer(modifier.width(25.dp))

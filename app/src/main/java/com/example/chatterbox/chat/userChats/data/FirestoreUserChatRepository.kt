@@ -5,15 +5,23 @@ import com.example.chatterbox.chat.shared.domain.Member
 import com.example.chatterbox.chat.shared.domain.Message
 import com.example.chatterbox.chat.userChats.domain.UserChat
 import com.example.chatterbox.chat.userChats.domain.UserChatRepository
+import com.example.chatterbox.chat.users.domain.User
 import com.example.chatterbox.core.common.FirestoreCollections
 import com.example.chatterbox.core.common.ListenerRegistry
+import com.example.chatterbox.retrofit.fcm.FCMService
+import com.example.chatterbox.retrofit.token.sendNotificationWithFetchedToken
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.toObject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import org.koin.core.context.GlobalContext
 
 class FirestoreUserChatRepository (
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
@@ -157,6 +165,28 @@ class FirestoreUserChatRepository (
             "lastMessageUsername", senderUsername,
             "lastMessageTime", time
         )
+
+        CoroutineScope(Dispatchers.IO).launch {
+            val fcmService: FCMService = GlobalContext.get().get() // Somehow getting from Koin
+            val memberIds = userChatDocument.get().await().toObject<UserChat>()?.memberIds
+            Log.d(TAG, "sendMessage: Sending notifications")
+
+            if (!memberIds.isNullOrEmpty()) {
+                memberIds.forEach{ memberId ->
+                    if (memberId != currentUserId) {
+                        val userToken = firestore.collection(FirestoreCollections.USERS).document(memberId)
+                            .get().await().toObject<User>()!!.messageToken
+                        sendNotificationWithFetchedToken(
+                            userFcmToken = userToken,
+                            title = senderUsername,
+                            message = text,
+                            fcmService = fcmService
+                        )
+                    }
+                }
+            }
+
+        }
 
     }
 

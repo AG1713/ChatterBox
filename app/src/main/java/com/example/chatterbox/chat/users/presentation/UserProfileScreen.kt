@@ -2,28 +2,18 @@ package com.example.chatterbox.chat.users.presentation
 
 import android.content.Context
 import android.content.ContextWrapper
-import android.net.Uri
-import android.text.format.DateUtils
 import android.util.Log
 import androidx.activity.ComponentActivity
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.CircularProgressIndicator
@@ -36,17 +26,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.chatterbox.EditProfileRootObject
-import com.example.chatterbox.R
 import com.example.chatterbox.chat.users.domain.User
 import com.example.chatterbox.core.common.getRelativeTime
 import com.example.chatterbox.ui.components.DescriptionCard
@@ -103,6 +89,9 @@ fun UserProfileScreen(
             }
         ) {
             padding ->
+
+            val online = ((System.currentTimeMillis() - user.lastActive) < 2_40_000)
+            Log.d(TAG, "Profile link: ${user.profilePhotoUrl}")
             Column(
                 modifier = modifier
                     .fillMaxSize()
@@ -120,8 +109,8 @@ fun UserProfileScreen(
             ) {
 
                 RoundImage(
-                    image = painterResource(R.drawable.google_logo),
-                    showDot = (user.status == "Online"),
+                    model = user.profilePhotoUrl,
+                    showDot = online,
                     modifier = Modifier.size(125.dp)
                 )
 
@@ -170,7 +159,6 @@ fun UserProfileScreenPreview(modifier: Modifier = Modifier) {
                 email = "sample@gmail.com",
                 description = "This is a description",
                 profilePhotoUrl = "",
-                status = "Online",
                 lastActive = System.currentTimeMillis(),
                 dateCreated = System.currentTimeMillis()
             ),

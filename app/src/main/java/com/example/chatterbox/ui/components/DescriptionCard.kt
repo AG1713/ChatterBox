@@ -12,7 +12,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import com.example.chatterbox.ui.theme.ChatterBoxTheme
 
 @Composable
 fun DescriptionCard(title: String, description: String, modifier: Modifier = Modifier, ) {
@@ -21,20 +23,28 @@ fun DescriptionCard(title: String, description: String, modifier: Modifier = Mod
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(25.dp))
-            .background(MaterialTheme.colorScheme.secondaryContainer)
+            .background(MaterialTheme.colorScheme.surfaceContainerHigh)
             .padding(15.dp),
         horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.Center
     ) {
         Text(
             text = title,
-            color = MaterialTheme.colorScheme.onSecondaryContainer,
+            color = MaterialTheme.colorScheme.onSurface,
             style = MaterialTheme.typography.titleSmall
         )
         Text(
             text = description,
-            color = MaterialTheme.colorScheme.onSecondaryContainer,
+            color = MaterialTheme.colorScheme.onSurface,
             style = MaterialTheme.typography.bodyMedium
         )
+    }
+}
+
+@PreviewLightDark
+@Composable
+fun DescriptionCardPreview(modifier: Modifier = Modifier) {
+    ChatterBoxTheme {
+        DescriptionCard(title = "Title", description = "Description")
     }
 }

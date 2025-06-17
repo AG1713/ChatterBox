@@ -2,16 +2,20 @@ package com.example.chatterbox.auth.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.chatterbox.BuildConfig
 import com.example.chatterbox.auth.domain.AuthRepository
 import com.example.chatterbox.chat.users.domain.User
 import com.example.chatterbox.chat.users.domain.UserRepository
-import com.google.firebase.Timestamp
+import com.example.chatterbox.core.common.SupabaseBuckets
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.messaging.messaging
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 class AuthViewModel(
     private val authRepository: AuthRepository,
@@ -30,16 +34,17 @@ class AuthViewModel(
         val result = authRepository.signInWithGoogle(idToken)
         if (result.isSuccess) {
             _user.value = authRepository.currentUser
+            val messageToken = Firebase.messaging.token.await()
             userRepository.createUserProfileIfNotExists(
                 User(
                     id = _user.value!!.uid, // Assuming it is not null
                     username = "User",
                     email = _user.value!!.email!!,
                     description = "Default description",
-                    profilePhotoUrl = "",
-                    status = "Online",
+                    profilePhotoUrl = "${BuildConfig.SUPABASE_URL}storage/v1/object/public/${SupabaseBuckets.USER_PHOTOS}/${_user.value!!.uid}.jpg",
                     lastActive = System.currentTimeMillis(),
-                    dateCreated = System.currentTimeMillis()
+                    dateCreated = System.currentTimeMillis(),
+                    messageToken = messageToken
                 )
             )
 

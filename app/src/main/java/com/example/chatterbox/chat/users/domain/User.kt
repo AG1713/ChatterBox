@@ -9,7 +9,7 @@ data class User(
     val email: String = "",
     val description: String = "",
     val profilePhotoUrl: String = "",
-    var status: String = "",
     var lastActive: Long = System.currentTimeMillis(),
-    val dateCreated: Long = System.currentTimeMillis()
+    val dateCreated: Long = System.currentTimeMillis(),
+    val messageToken: String = ""
 )

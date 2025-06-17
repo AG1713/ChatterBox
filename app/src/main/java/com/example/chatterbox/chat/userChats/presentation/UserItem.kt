@@ -13,13 +13,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
-import com.example.chatterbox.ChatScreenObject
-import com.example.chatterbox.R
 import com.example.chatterbox.chat.users.domain.User
 import com.example.chatterbox.core.common.getRelativeTime
 import com.example.chatterbox.ui.components.RoundImage
@@ -40,7 +36,7 @@ fun UserItem(modifier: Modifier = Modifier, user: User,
     ) {
 
         RoundImage(
-            image = painterResource(R.drawable.google_logo),
+            model = user.profilePhotoUrl,
             modifier = Modifier
                 .size(50.dp),
             showDot = false
@@ -75,7 +71,6 @@ fun UserItemPreview(modifier: Modifier = Modifier) {
                 email = "sample@gmailcom",
                 description = "Descrption",
                 profilePhotoUrl = "",
-                status = "Online",
                 lastActive = System.currentTimeMillis(),
                 dateCreated = System.currentTimeMillis()
             ),

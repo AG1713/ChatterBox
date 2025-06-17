@@ -18,3 +18,9 @@ fun getRelativeTime(millis: Long): CharSequence {
         DateUtils.MINUTE_IN_MILLIS
     )
 }
+
+public val DEFAULT_CHANNEL = "default_channel"
+
+object SupabaseBuckets {
+    const val USER_PHOTOS = "user-photos"
+}

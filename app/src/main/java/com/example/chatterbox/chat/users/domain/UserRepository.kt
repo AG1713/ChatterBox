@@ -11,4 +11,5 @@ interface UserRepository {
     suspend fun getUserProfile(id: String): User?
     suspend fun updateUserProfile(user: User)
     suspend fun searchUsers(hint: String): MutableStateFlow<List<User>>
+    suspend fun updateMessageToken(userId: String, messageToken: String)
 }

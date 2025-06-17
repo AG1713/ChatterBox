@@ -12,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import com.example.chatterbox.chat.shared.domain.Message
@@ -35,7 +36,7 @@ fun MessageItem(modifier: Modifier = Modifier, currentUserId: String, message: M
         ChatBubble(
             modifier = modifier
                 .background(
-                    color = if (yourMessage) MaterialTheme.colorScheme.surfaceContainer
+                    color = if (yourMessage) MaterialTheme.colorScheme.tertiaryContainer
                     else MaterialTheme.colorScheme.surfaceVariant,
                     shape = RoundedCornerShape(10.dp)
                 )
@@ -43,6 +44,7 @@ fun MessageItem(modifier: Modifier = Modifier, currentUserId: String, message: M
                     if (yourMessage) Alignment.CenterEnd else Alignment.CenterStart
                 ),
             text = message.text,
+            textColor = if (yourMessage) MaterialTheme.colorScheme.onTertiaryContainer else MaterialTheme.colorScheme.onSurface,
             sender = if (yourMessage) "You" else message.senderUsername,
             time = message.time
         )
@@ -52,22 +54,25 @@ fun MessageItem(modifier: Modifier = Modifier, currentUserId: String, message: M
 }
 
 @Composable
-fun ChatBubble(modifier: Modifier = Modifier, text: String, sender: String, time: Long) {
+fun ChatBubble(modifier: Modifier = Modifier, text: String, textColor: Color, sender: String, time: Long) {
     Column(
         modifier = modifier.padding(5.dp),
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
     ){
         Text(
             text = sender,
-            style = MaterialTheme.typography.labelSmall
+            style = MaterialTheme.typography.labelSmall,
+            color = textColor
         )
         Text(
             text = text,
-            style = MaterialTheme.typography.bodyMedium
+            style = MaterialTheme.typography.bodyMedium,
+            color = textColor
         )
         Text(
             text = getRelativeTime(time).toString(),
-            style = MaterialTheme.typography.labelSmall
+            style = MaterialTheme.typography.labelSmall,
+            color = textColor
         )
     }
 }
