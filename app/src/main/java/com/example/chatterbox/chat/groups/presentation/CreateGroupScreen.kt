@@ -41,6 +41,9 @@ import androidx.navigation.NavController
 import com.example.chatterbox.CreateGroupRootObject
 import com.example.chatterbox.GroupChatRootObject
 import com.example.chatterbox.R
+import com.example.chatterbox.core.common.maxCharsForDescription
+import com.example.chatterbox.core.common.maxCharsForUsername
+import com.example.chatterbox.core.common.maxLinesForDescription
 import com.example.chatterbox.ui.components.RoundImage
 import com.example.chatterbox.ui.theme.ChatterBoxTheme
 import kotlinx.coroutines.flow.StateFlow
@@ -114,8 +117,11 @@ fun CreateGroupScreen(modifier: Modifier = Modifier, loadState: State<LoadState>
                 label = { Text("Group name") },
                 value = name,
                 onValueChange = {
-                    name = it
+                    if (it.length <= maxCharsForUsername) {
+                        name = it
+                    }
                 },
+                singleLine = true,
                 keyboardOptions = KeyboardOptions.Default
                     .copy(capitalization = KeyboardCapitalization.Sentences)
             )
@@ -127,7 +133,9 @@ fun CreateGroupScreen(modifier: Modifier = Modifier, loadState: State<LoadState>
                 label = { Text("Description") },
                 value = description,
                 onValueChange = {
-                    description = it
+                    if ((it.length <= maxCharsForDescription && it.count { ch -> ch == '\n' } <= maxLinesForDescription)) {
+                        description = it
+                    }
                     Log.d(TAG, "CreateGroupScreen: $description")
                 },
                 keyboardOptions = KeyboardOptions.Default

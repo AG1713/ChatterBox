@@ -1,3 +1,6 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -6,6 +9,11 @@ plugins {
     kotlin("plugin.serialization") version "2.0.21"
 }
 
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(FileInputStream(localPropertiesFile))
+}
 android {
     namespace = "com.example.chatterbox"
     compileSdk = 35
@@ -23,8 +31,8 @@ android {
     buildTypes {
 
         debug {
-            buildConfigField("String", "SUPABASE_URL", "\"https://lhvqciwwwjvtaefhyiey.supabase.co/\"")
-            buildConfigField("String", "SUPABASE_KEY", "\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxodnFjaXd3d2p2dGFlZmh5aWV5Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MDAwNTYxOCwiZXhwIjoyMDY1NTgxNjE4fQ.vEtCWe2H4y7genGilERNZLy_PFWw1JF8vmKcnvtis_w\"")
+            buildConfigField("String", "SUPABASE_URL", "\"${localProperties.getProperty("supabase_url")}\"")
+            buildConfigField("String", "SUPABASE_KEY", "\"${localProperties.getProperty("supabase_anon_key")}\"")
         }
         
         release {
@@ -35,8 +43,8 @@ android {
             )
 
             // Supabase urls
-            buildConfigField("String", "SUPABASE_URL", "\"https://lhvqciwwwjvtaefhyiey.supabase.co/\"")
-            buildConfigField("String", "SUPABASE_KEY", "\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxodnFjaXd3d2p2dGFlZmh5aWV5Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MDAwNTYxOCwiZXhwIjoyMDY1NTgxNjE4fQ.vEtCWe2H4y7genGilERNZLy_PFWw1JF8vmKcnvtis_w\"")
+            buildConfigField("String", "SUPABASE_URL", "\"${localProperties.getProperty("supabase_url")}\"")
+            buildConfigField("String", "SUPABASE_KEY", "\"${localProperties.getProperty("supabase_anon_key")}\"")
         }
     }
     compileOptions {
@@ -50,6 +58,10 @@ android {
         compose = true
         buildConfig = true
     }
+}
+
+configurations.all {
+    exclude(group = "com.intellij", module = "annotations")
 }
 
 dependencies {
@@ -67,6 +79,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.room.compiler)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.chatterbox.chat.userChats.presentation.UserItem
 import com.example.chatterbox.chat.users.domain.User
+import com.example.chatterbox.core.common.maxCharsForUsername
 import com.example.chatterbox.ui.theme.ChatterBoxTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -88,11 +89,14 @@ fun SearchUsersBottomSheet(
                         modifier = Modifier.fillMaxWidth(),
                         value = hint,
                         onValueChange = {
-                            hint = it
+                            if (it.length <= maxCharsForUsername) {
+                                hint = it
+                            }
                         },
                         label = {
                             Text("Username")
                         },
+                        singleLine = true,
                         keyboardOptions = KeyboardOptions.Default
                             .copy(capitalization = KeyboardCapitalization.Sentences)
                     )

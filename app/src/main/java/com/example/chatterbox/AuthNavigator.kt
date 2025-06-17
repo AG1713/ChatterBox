@@ -1,12 +1,21 @@
 package com.example.chatterbox
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.example.chatterbox.auth.presentation.AuthViewModel
+import com.example.chatterbox.auth.presentation.CreateUserRoot
+import com.example.chatterbox.auth.presentation.CreateUserScreen
 import com.example.chatterbox.auth.presentation.SignInScreen
 import com.example.chatterbox.chat.ChatPagerScreen
 import com.example.chatterbox.chat.groups.presentation.CreateGroupRoot
@@ -20,10 +29,16 @@ import com.example.chatterbox.chat.userChats.presentation.SearchUsersRoot
 import com.example.chatterbox.chat.userChats.presentation.UserChatViewModel
 import com.example.chatterbox.chat.userChats.presentation.UserChatsRoot
 import com.example.chatterbox.chat.userChats.presentation.UserInfoRoot
+import com.example.chatterbox.chat.users.domain.User
 import com.example.chatterbox.chat.users.presentation.EditProfileRoot
 import com.example.chatterbox.chat.users.presentation.UserProfileRoot
 import com.example.chatterbox.chat.users.presentation.UserViewModel
+import com.example.chatterbox.core.common.FirestoreCollections
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.toObject
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.tasks.await
 import kotlinx.serialization.Serializable
 import org.koin.androidx.compose.koinViewModel
 
@@ -37,10 +52,19 @@ fun AuthNavigator(modifier: Modifier = Modifier) {
     val groupChatViewModel: GroupChatViewModel = koinViewModel()
     val navController = rememberNavController()
 
-    val startDestination = if (FirebaseAuth.getInstance().currentUser?.uid != null) {
-        ChatPagerScreenObject
-    } else {
+//    val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
+//    var currentUser: User? = null
+//    if (currentUserId != null) {
+//        FirebaseFirestore.getInstance().collection(FirestoreCollections.USERS)
+//            .document(currentUserId).get().addOnSuccessListener {
+//                currentUser = it.toObject<User>()
+//            }
+//    }
+
+    val startDestination = if (FirebaseAuth.getInstance().currentUser?.uid == null) {
         SignInScreenObject
+    } else {
+        ChatPagerScreenObject
     }
 
     NavHost(
@@ -50,6 +74,9 @@ fun AuthNavigator(modifier: Modifier = Modifier) {
 
         composable<SignInScreenObject>{
             SignInScreen(authViewModel = authViewModel, navController = navController)
+        }
+        composable<CreateUserScreenObject> {
+            CreateUserRoot(authViewModel = authViewModel, navController = navController)
         }
         composable<ChatPagerScreenObject>{
             val currentUserId = FirebaseAuth.getInstance().currentUser!!.uid
@@ -135,6 +162,9 @@ fun AuthNavigator(modifier: Modifier = Modifier) {
 
 @Serializable
 object SignInScreenObject
+
+@Serializable
+object CreateUserScreenObject
 
 @Serializable
 object ChatPagerScreenObject

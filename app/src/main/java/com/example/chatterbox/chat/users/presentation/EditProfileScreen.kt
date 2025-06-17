@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
@@ -35,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -42,6 +44,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.chatterbox.chat.users.domain.User
 import com.example.chatterbox.core.common.convertToJpeg
+import com.example.chatterbox.core.common.maxCharsForDescription
+import com.example.chatterbox.core.common.maxLinesForDescription
 import com.example.chatterbox.ui.components.RoundImage
 import com.example.chatterbox.ui.theme.ChatterBoxTheme
 import kotlinx.coroutines.CoroutineScope
@@ -108,7 +112,8 @@ fun EditProfileScreen(user: User?, loadState: LoadState, navController: NavContr
         Row {
             RoundImage(
                 model = if (newUri == null) user?.profilePhotoUrl else newUri,
-                modifier = Modifier.size(125.dp)
+                modifier = Modifier
+                    .size(125.dp)
                     .clickable {
                         dropDownMenuExpanded = true
                     },
@@ -142,8 +147,12 @@ fun EditProfileScreen(user: User?, loadState: LoadState, navController: NavContr
             label = { Text("Description") },
             value = description ?: "",
             onValueChange = {
-                description = it
-            }
+                if (it.length <= maxCharsForDescription && it.count { ch -> ch == '\n' } <= maxLinesForDescription) {
+                    description = it
+                }
+            },
+            keyboardOptions = KeyboardOptions.Default
+                .copy(capitalization = KeyboardCapitalization.Sentences)
         )
 
         Spacer(Modifier.height(25.dp))

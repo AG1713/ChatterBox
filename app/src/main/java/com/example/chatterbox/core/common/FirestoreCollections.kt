@@ -20,6 +20,9 @@ fun getRelativeTime(millis: Long): CharSequence {
 }
 
 public val DEFAULT_CHANNEL = "default_channel"
+val maxCharsForUsername = 15
+val maxCharsForDescription = 50
+val maxLinesForDescription = 5
 
 object SupabaseBuckets {
     const val USER_PHOTOS = "user-photos"

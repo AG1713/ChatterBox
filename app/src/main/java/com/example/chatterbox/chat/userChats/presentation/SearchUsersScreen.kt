@@ -34,6 +34,7 @@ import com.example.chatterbox.ChatScreenObject
 import com.example.chatterbox.SearchUsersRootObject
 import com.example.chatterbox.chat.users.domain.User
 import com.example.chatterbox.chat.users.presentation.UserViewModel
+import com.example.chatterbox.core.common.maxCharsForUsername
 import com.example.chatterbox.ui.theme.ChatterBoxTheme
 import kotlinx.coroutines.delay
 
@@ -100,11 +101,14 @@ fun SearchUsersScreen(
                 modifier = Modifier.fillMaxWidth(),
                 value = hint,
                 onValueChange = {
-                    hint = it
+                    if (it.length <= maxCharsForUsername) {
+                        hint = it
+                    }
                 },
                 label = {
                     Text("Username")
                 },
+                singleLine = true,
                 keyboardOptions = KeyboardOptions.Default
                     .copy(capitalization = KeyboardCapitalization.Sentences)
             )

@@ -43,6 +43,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.example.chatterbox.ChatPagerScreenObject
+import com.example.chatterbox.CreateUserScreenObject
 import com.example.chatterbox.R
 import com.example.chatterbox.SignInScreenObject
 import com.example.chatterbox.ui.theme.ChatterBoxTheme
@@ -65,12 +66,10 @@ fun SignInScreen(authViewModel: AuthViewModel, navController: NavController?, mo
 
     val context = LocalContext.current
     val googleSignInClient = GoogleSignIn.getClient(context, GoogleSignInOptions.DEFAULT_SIGN_IN)
-    
 
     authViewModel.signOut() // Because we cannot navigate first or sign out first from the
     // the main screen, since, if we navigate first, rest sign out code won't run, and
     // if we log out first, app will crash with null pointer exception since current user id is null
-
 
     // The below is to ask for account always
     googleSignInClient.revokeAccess().addOnCompleteListener {
@@ -89,10 +88,20 @@ fun SignInScreen(authViewModel: AuthViewModel, navController: NavController?, mo
                 val idToken = account?.idToken
                 if (idToken != null){
                     authViewModel.viewModelScope.launch {
-                        authViewModel.signInWithGoogle(idToken)
-                        navController?.navigate(ChatPagerScreenObject) {
-                            popUpTo<SignInScreenObject> { inclusive = true }
+                        authViewModel.signInWithGoogle(idToken){ user ->
+                            Log.d(TAG, "SignInScreen: $user")
+                            if (user == null) {
+                                navController?.navigate(CreateUserScreenObject) {
+                                    popUpTo<SignInScreenObject> { inclusive = true }
+                                }
+                            }
+                            else {
+                                navController?.navigate(ChatPagerScreenObject) {
+                                    popUpTo<SignInScreenObject> { inclusive = true }
+                                }
+                            }
                         }
+
                     }
                 }
 
@@ -106,15 +115,6 @@ fun SignInScreen(authViewModel: AuthViewModel, navController: NavController?, mo
     }
 
     val authState by authViewModel.authState.collectAsState()
-
-//    val navigateToChats by authViewModel.navigateToChat.collectAsStateWithLifecycle(null)
-//    LaunchedEffect (navigateToChats){
-//        navigateToChats?.let {
-//            navController.navigate(ChatPagerScreenObject) {
-//                popUpTo<SignInScreenObject> { inclusive = true }
-//            }
-//        }
-//    }
 
     ChatterBoxTheme {
 
