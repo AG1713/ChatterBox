@@ -49,6 +49,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.chatterbox.BuildConfig
 import com.example.chatterbox.ChatPagerScreenObject
+import com.example.chatterbox.EditGroupRootObject
 import com.example.chatterbox.chat.groups.domain.Group
 import com.example.chatterbox.chat.shared.domain.Member
 import com.example.chatterbox.ui.components.SearchUsersBottomSheet
@@ -68,17 +69,13 @@ fun GroupInfoRoot(groupId: String, groupViewModel: GroupViewModel, userViewModel
     val currentUser by userViewModel.user.collectAsStateWithLifecycle()
     val users = userChatViewModel.users.collectAsStateWithLifecycle()
 
-    DisposableEffect(Unit) {
-        groupViewModel.getGroup(groupId)
-        onDispose {
-            groupViewModel.clearCurrentGroupStateFlow()
-        }
-    }
+    groupViewModel.getGroup(groupId)
 
     GroupInfoScreen(
         group = currentGroup,
         loadState = loadState,
         users = users,
+        navController = navController,
         searchUsers = { hint ->
             userChatViewModel.getAllUsersWithHint(hint)
         },
@@ -98,6 +95,7 @@ fun GroupInfoRoot(groupId: String, groupViewModel: GroupViewModel, userViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GroupInfoScreen(group: Group?, loadState: State<LoadState>, users: State<List<User>>,
+                    navController: NavController?,
                     modifier: Modifier = Modifier,
                     addMembers: (List<String>, List<Member>) -> Unit, leaveGroup: () -> Unit,
                     searchUsers: (String) -> Unit) {
@@ -148,6 +146,16 @@ fun GroupInfoScreen(group: Group?, loadState: State<LoadState>, users: State<Lis
                             expanded = expanded,
                             onDismissRequest = { expanded = false }
                         ) {
+                            DropdownMenuItem(
+                                onClick = {
+                                    navController?.navigate(EditGroupRootObject(groupId = group.id, groupName = group.name))
+                                },
+                                text = {
+                                    Text(
+                                        text = "Edit group"
+                                    )
+                                }
+                            )
                             DropdownMenuItem(
                                 onClick = {
                                     leaveGroup()
@@ -265,7 +273,7 @@ fun MemberDisplay(member: Member, modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.Center
     ) {
         RoundImage(
-            model = "${BuildConfig.SUPABASE_URL}storage/v1/object/public/${SupabaseBuckets.USER_PHOTOS}/${member.id}",
+            model = "${BuildConfig.SUPABASE_URL}storage/v1/object/public/${SupabaseBuckets.USER_PHOTOS}/${member.id}.jpg",
             showDot = false,
             modifier = Modifier.size(75.dp)
         )
@@ -336,6 +344,7 @@ fun GroupInfoScreenPreview(modifier: Modifier = Modifier) {
             ),
             users = sampleUsers,
             loadState = mockLoadState,
+            navController = null,
             searchUsers = {},
             addMembers = { memberids, members -> },
             leaveGroup = {}

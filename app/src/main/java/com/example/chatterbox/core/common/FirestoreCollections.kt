@@ -26,4 +26,5 @@ val maxLinesForDescription = 5
 
 object SupabaseBuckets {
     const val USER_PHOTOS = "user-photos"
+    const val GROUP_PHOTOS = "group-photos"
 }

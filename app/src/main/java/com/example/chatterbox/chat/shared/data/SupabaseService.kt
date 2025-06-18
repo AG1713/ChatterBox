@@ -5,6 +5,7 @@ import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.PUT
@@ -21,10 +22,12 @@ interface SupabaseService {
         @Body file: RequestBody
     ): Call<ResponseBody>
 
-    @GET("/public/{bucket}/{path}")
-    fun getImage(
+    @DELETE("storage/v1/object/{bucket}/{path}")
+    fun deleteImage(
         @Path("bucket") bucket: String,
         @Path("path") path: String,
+        @Header("Authorization") authHeader: String = "Bearer ${BuildConfig.SUPABASE_KEY}",
+        @Header("Content-Type") contentType: String = "image/jpg"
     ): Call<ResponseBody>
 
 }

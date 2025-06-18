@@ -1,13 +1,18 @@
 package com.example.chatterbox.chat.groups.presentation
 
+import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,6 +22,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -41,6 +48,7 @@ import androidx.navigation.NavController
 import com.example.chatterbox.CreateGroupRootObject
 import com.example.chatterbox.GroupChatRootObject
 import com.example.chatterbox.R
+import com.example.chatterbox.core.common.convertToJpeg
 import com.example.chatterbox.core.common.maxCharsForDescription
 import com.example.chatterbox.core.common.maxCharsForUsername
 import com.example.chatterbox.core.common.maxLinesForDescription
@@ -51,12 +59,12 @@ import kotlinx.coroutines.flow.StateFlow
 @Composable
 fun CreateGroupRoot(groupViewModel: GroupViewModel, navController: NavController, currentUsername: String, modifier: Modifier = Modifier) {
     val loadState = groupViewModel.loadState.collectAsStateWithLifecycle()
-    CreateGroupScreen(loadState = loadState, modifier = modifier) { name, description, photoUrl ->
+    CreateGroupScreen(loadState = loadState, modifier = modifier) { name, description, context, uri ->
         groupViewModel.createGroup(
             currentUsername = currentUsername,
             name = name,
             description = description,
-            photoUrl = photoUrl,
+            convertFunction = { convertToJpeg(context = context, uri = uri) },
         ) { groupId, groupName ->
             navController.navigate(GroupChatRootObject(groupId, groupName)) {
                 popUpTo<CreateGroupRootObject>() { inclusive = true }
@@ -67,14 +75,22 @@ fun CreateGroupRoot(groupViewModel: GroupViewModel, navController: NavController
 }
 
 @Composable
-fun CreateGroupScreen(modifier: Modifier = Modifier, loadState: State<LoadState>, createGroup: (String, String, String) -> Unit) {
+fun CreateGroupScreen(modifier: Modifier = Modifier, loadState: State<LoadState>, createGroup: (String, String, Context, Uri?) -> Unit) {
     val TAG = "CreateGroupScreen"
 
     var name by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
-    // TODO: Edit this after adding the functionality of uploading the profile photo
-    var uri by remember { mutableStateOf<Uri?>(null) }
+    var newUri by remember { mutableStateOf<Uri?>(null) }
+    var dropDownMenuExpanded by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri: Uri? ->
+        uri?.let {
+            context.contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            newUri = uri
+        }
+    }
 
 
     Surface {
@@ -103,12 +119,35 @@ fun CreateGroupScreen(modifier: Modifier = Modifier, loadState: State<LoadState>
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            
+            Row {
+                RoundImage(
+                    model = newUri,
+                    modifier = Modifier.size(125.dp).clickable { dropDownMenuExpanded = true },
+                    editable = true
+                )
+                DropdownMenu(
+                    expanded = dropDownMenuExpanded,
+                    onDismissRequest = { dropDownMenuExpanded = false }
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("Upload") },
+                        onClick = {
+                            dropDownMenuExpanded = false
+                            launcher.launch(arrayOf("image/jpeg", "image/png"))
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Remove") },
+                        onClick = {
+                            dropDownMenuExpanded = false
+                            newUri = null
+                        }
+                    )
+                }
 
-            RoundImage(
-                model = uri,
-                modifier = Modifier.size(125.dp),
-                showDot = false
-            )
+            }
+
 
             Spacer(Modifier.height(15.dp))
 
@@ -150,7 +189,7 @@ fun CreateGroupScreen(modifier: Modifier = Modifier, loadState: State<LoadState>
                         Toast.makeText(context, "Please enter each value", Toast.LENGTH_SHORT)
                             .show()
                     } else {
-                        createGroup(name, description, "")
+                        createGroup(name, description, context, newUri)
                         Toast.makeText(context, "Group created", Toast.LENGTH_SHORT).show()
                     }
 
@@ -175,7 +214,7 @@ fun CreateGroupScreenPreview(modifier: Modifier = Modifier) {
     ChatterBoxTheme {
         CreateGroupScreen(
             loadState = mockLoadState,
-        ) { name, photoUrl, description ->
+        ) { name, description, context, uri ->
 
         }
     }

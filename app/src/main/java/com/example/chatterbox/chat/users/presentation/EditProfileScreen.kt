@@ -76,14 +76,15 @@ fun EditProfileScreen(user: User?, loadState: LoadState, navController: NavContr
     var description by remember { mutableStateOf(user?.description) }
     val context = LocalContext.current
     var newUri by remember { mutableStateOf<Uri?>(null) }
+    var deleteFlag by remember { mutableStateOf(false) }
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
     ) { uri: Uri? ->
         uri?.let {
             context.contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION)
             newUri = uri
+            deleteFlag = false
         }
-
     }
 
     LaunchedEffect(loadState) {
@@ -111,7 +112,7 @@ fun EditProfileScreen(user: User?, loadState: LoadState, navController: NavContr
 
         Row {
             RoundImage(
-                model = if (newUri == null) user?.profilePhotoUrl else newUri,
+                model = if (deleteFlag) null else if (newUri == null) user?.profilePhotoUrl else newUri,
                 modifier = Modifier
                     .size(125.dp)
                     .clickable {
@@ -134,7 +135,7 @@ fun EditProfileScreen(user: User?, loadState: LoadState, navController: NavContr
                     text = { Text("Remove") },
                     onClick = {
                         dropDownMenuExpanded = false
-
+                        deleteFlag = true
                     }
                 )
             }
@@ -162,7 +163,7 @@ fun EditProfileScreen(user: User?, loadState: LoadState, navController: NavContr
                 Log.d(TAG, "Save changes clicked")
                 if (username == null || description == null) return@Button
                 val newUser = user!!.copy(username = username!!, description = description!!)
-                updateUser(newUser, newUri, context)
+                updateUser(newUser, if (deleteFlag) null else newUri, context)
                 Log.d(TAG, "Save changes onClick ended")
             }
         ) {

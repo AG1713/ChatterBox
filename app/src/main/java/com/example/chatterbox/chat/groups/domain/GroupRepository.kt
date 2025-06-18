@@ -12,7 +12,6 @@ interface GroupRepository {
     suspend fun createGroup(
         currentUsername: String,
         name: String,
-        photoUrl: String,
         description: String
     ): String
     fun addMembers(groupId: String, memberIds: List<String>, members: List<Member>)
@@ -22,4 +21,5 @@ interface GroupRepository {
     fun clearChatsListener()
     fun sendMessage(groupId: String, senderUsername: String, text: String)
     suspend fun getGroup(groupId: String): Group?
+    fun updateGroup(group: Group)
 }

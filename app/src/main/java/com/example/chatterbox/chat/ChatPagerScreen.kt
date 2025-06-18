@@ -33,6 +33,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarColors
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -43,10 +44,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import coil.annotation.ExperimentalCoilApi
+import coil.imageLoader
 import com.example.chatterbox.SignInScreenObject
 import com.example.chatterbox.chat.groups.presentation.GroupViewModel
 import com.example.chatterbox.chat.groups.presentation.GroupsRoot
@@ -57,7 +61,7 @@ import com.example.chatterbox.chat.users.presentation.UserViewModel
 import com.example.chatterbox.core.common.ListenerRegistry
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalCoilApi::class)
 @Composable
 fun ChatPagerScreen (
     userViewModel: UserViewModel,
@@ -69,6 +73,14 @@ fun ChatPagerScreen (
 ) {
     LaunchedEffect(Unit) {
         userViewModel.getCurrentUser()
+    }
+
+    val context = LocalContext.current
+    DisposableEffect(Unit) {
+        onDispose {
+            context.imageLoader.diskCache?.clear()
+            context.imageLoader.memoryCache?.clear()
+        }
     }
 
     val scope = rememberCoroutineScope()

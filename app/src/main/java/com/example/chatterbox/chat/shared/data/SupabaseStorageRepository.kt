@@ -29,12 +29,12 @@ class SupabaseStorageRepository: StorageRepository {
 
     private val supabaseService = retrofitSupabase.create<SupabaseService>()
 
-    override fun uploadImage(bytes: ByteArray, fileName: String) {
+    override fun uploadImage(bucket: String, bytes: ByteArray, fileName: String) {
         Log.d(TAG, "Supabase url: ${BuildConfig.SUPABASE_URL}")
         val requestBody = bytes.toRequestBody("image/jpeg".toMediaTypeOrNull())
 
         val call = supabaseService.uploadImage(
-            bucket = SupabaseBuckets.USER_PHOTOS,
+            bucket = bucket,
             path = "$fileName.jpg",
             authHeader = "Bearer ${BuildConfig.SUPABASE_KEY}",
             file = requestBody
@@ -49,7 +49,6 @@ class SupabaseStorageRepository: StorageRepository {
                     Log.e(TAG, "Upload failed: ${response.code()} and ${response.raw()}")
                 }
             }
-
             override fun onFailure(p0: Call<ResponseBody>, p1: Throwable) {
                 Log.e(TAG, "Upload error: ${p1.message}")
             }
@@ -57,22 +56,27 @@ class SupabaseStorageRepository: StorageRepository {
 
     }
 
-    fun getImage(bucket: String, path: String, callback: (Bitmap) -> Unit) {
-        val call = supabaseService.getImage(bucket = bucket, path = path)
+    override fun deleteImage(bucket: String, fileName: String) {
+        Log.d(TAG, "Supabase url: ${BuildConfig.SUPABASE_URL}")
 
-        call.enqueue(object: Callback<ResponseBody> {
+        val call = supabaseService.deleteImage(
+            bucket = bucket,
+            path = "$fileName.jpg",
+            authHeader = "Bearer ${BuildConfig.SUPABASE_KEY}"
+        )
+
+        call.enqueue(object : Callback<ResponseBody> {
             override fun onResponse(p0: Call<ResponseBody>, response: Response<ResponseBody>) {
-                if (response.isSuccessful){
-                    val inputStream = response.body()?.byteStream()
-                    val bitmap = BitmapFactory.decodeStream(inputStream)
-                    callback(bitmap)
+                if (response.isSuccessful) {
+                    Log.d(TAG, "Upload successful: $fileName")
+                    // Save this URL to Firestore or use directly
+                } else {
+                    Log.e(TAG, "Upload failed: ${response.code()} and ${response.raw()}")
                 }
             }
-
             override fun onFailure(p0: Call<ResponseBody>, p1: Throwable) {
-                TODO("Not yet implemented")
+                Log.e(TAG, "Upload error: ${p1.message}")
             }
-
         })
 
     }

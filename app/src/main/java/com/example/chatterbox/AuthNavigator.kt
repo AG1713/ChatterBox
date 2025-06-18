@@ -19,6 +19,7 @@ import com.example.chatterbox.auth.presentation.CreateUserScreen
 import com.example.chatterbox.auth.presentation.SignInScreen
 import com.example.chatterbox.chat.ChatPagerScreen
 import com.example.chatterbox.chat.groups.presentation.CreateGroupRoot
+import com.example.chatterbox.chat.groups.presentation.EditGroupRoot
 import com.example.chatterbox.chat.groups.presentation.GroupChatRoot
 import com.example.chatterbox.chat.groups.presentation.GroupChatViewModel
 import com.example.chatterbox.chat.groups.presentation.GroupInfoRoot
@@ -119,6 +120,11 @@ fun AuthNavigator(modifier: Modifier = Modifier) {
             val currentUsername = userViewModel.user.value?.username
             CreateGroupRoot(groupViewModel = groupViewModel, navController = navController, currentUsername = currentUsername!!)
         }
+        composable<EditGroupRootObject> {
+            val args = it.toRoute<EditGroupRootObject>()
+            EditGroupRoot(groupId = args.groupId, groupName = args.groupName,
+                groupViewModel = groupViewModel, navController = navController)
+        }
         composable<GroupChatRootObject> {
             val args = it.toRoute<GroupChatRootObject>()
             val currentUserId = FirebaseAuth.getInstance().currentUser!!.uid
@@ -190,6 +196,12 @@ object SearchUsersRootObject
 
 @Serializable
 object CreateGroupRootObject
+
+@Serializable
+data class EditGroupRootObject(
+    val groupId: String,
+    val groupName: String
+)
 
 @Serializable
 data class GroupChatRootObject(

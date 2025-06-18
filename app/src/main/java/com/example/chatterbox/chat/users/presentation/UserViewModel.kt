@@ -5,10 +5,12 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.chatterbox.BuildConfig
 import com.example.chatterbox.chat.shared.domain.StorageRepository
 import com.example.chatterbox.chat.users.data.FirestoreUserRepository
 import com.example.chatterbox.chat.users.domain.User
 import com.example.chatterbox.chat.users.domain.UserRepository
+import com.example.chatterbox.core.common.SupabaseBuckets
 import com.example.chatterbox.core.common.convertToJpeg
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -91,9 +93,13 @@ class UserViewModel(
             // 2. Context should not be passed to viewmodel
 
             try {
-                userRepository.updateUserProfile(user)
-                if (byteArray != null) {
-                    storageRepository.uploadImage(bytes = byteArray, fileName = user.id)
+                if (byteArray == null) {
+                    storageRepository.deleteImage(bucket = SupabaseBuckets.USER_PHOTOS, fileName = user.id)
+                    userRepository.updateUserProfile(user.copy(profilePhotoUrl = ""))
+                }
+                else {
+                    storageRepository.uploadImage(bucket = SupabaseBuckets.USER_PHOTOS, bytes = byteArray, fileName = user.id)
+                    userRepository.updateUserProfile(user.copy(profilePhotoUrl = "${BuildConfig.SUPABASE_URL}storage/v1/object/public/${SupabaseBuckets.USER_PHOTOS}/${user.id}.jpg"))
                 }
 
                 getCurrentUser()

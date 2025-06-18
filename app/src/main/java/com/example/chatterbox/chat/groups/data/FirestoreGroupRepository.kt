@@ -1,6 +1,8 @@
 package com.example.chatterbox.chat.groups.data
 
+import android.net.Uri
 import android.util.Log
+import com.example.chatterbox.BuildConfig
 import com.example.chatterbox.chat.groups.domain.Group
 import com.example.chatterbox.chat.groups.domain.GroupRepository
 import com.example.chatterbox.chat.shared.domain.Member
@@ -8,6 +10,7 @@ import com.example.chatterbox.chat.shared.domain.Message
 import com.example.chatterbox.chat.users.domain.User
 import com.example.chatterbox.core.common.FirestoreCollections
 import com.example.chatterbox.core.common.ListenerRegistry
+import com.example.chatterbox.core.common.SupabaseBuckets
 import com.example.chatterbox.retrofit.fcm.FCMService
 import com.example.chatterbox.retrofit.token.sendNotificationWithFetchedToken
 import com.google.firebase.auth.FirebaseAuth
@@ -78,7 +81,7 @@ class FirestoreGroupRepository(
         ListenerRegistry.remove(ListenerRegistry.ListenerKeys.GROUPS_LISTENER)
     }
 
-    override suspend fun createGroup(currentUsername: String, name: String, photoUrl: String, description: String): String {
+    override suspend fun createGroup(currentUsername: String, name: String, description: String): String {
         // For now, we assume the creator is the only member
         val groupsCollection = firestore.collection(FirestoreCollections.GROUPS)
 
@@ -86,7 +89,7 @@ class FirestoreGroupRepository(
         val group = Group(
             id = groupId,
             name = name,
-            groupPhotoUrl = "",
+            groupPhotoUrl = "${BuildConfig.SUPABASE_URL}storage/v1/object/public/${SupabaseBuckets.GROUP_PHOTOS}/${groupId}.jpg",
             description = description,
             creationTimestamp = System.currentTimeMillis(),
             memberIds = listOf(currentUserId!!),
@@ -101,6 +104,16 @@ class FirestoreGroupRepository(
         Log.d(TAG, "createGroup: $group")
 
         return groupId
+    }
+
+    override fun updateGroup(group: Group) {
+        try {
+            val groupDoc = firestore.collection(FirestoreCollections.GROUPS).document(group.id)
+            groupDoc.set(group)
+        }
+        catch (e: Exception){
+            Log.d("EXCEPTION", "culprit: ")
+        }
     }
 
     override fun addMembers(groupId: String, memberIds: List<String>, members: List<Member>) {

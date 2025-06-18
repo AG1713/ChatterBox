@@ -14,21 +14,27 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.example.chatterbox.App
 import com.example.chatterbox.R
 import com.example.chatterbox.ui.theme.ChatterBoxTheme
 
 @Composable
 fun RoundImage(model: Any?, modifier: Modifier = Modifier, showDot: Boolean = false, editable: Boolean = false) {
+
+    val context = LocalContext.current.applicationContext as App
 
     // Type validation of model is handled by AsyncImage appropriately
     Box {
@@ -46,7 +52,7 @@ fun RoundImage(model: Any?, modifier: Modifier = Modifier, showDot: Boolean = fa
             placeholder = painterResource(R.drawable.default_user_photo),
             error = painterResource(R.drawable.default_user_photo),
             contentDescription = "Image",
-            contentScale = ContentScale.Crop
+            contentScale = ContentScale.Crop,
         )
 
 
