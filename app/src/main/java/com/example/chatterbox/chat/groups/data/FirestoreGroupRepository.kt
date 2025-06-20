@@ -83,27 +83,33 @@ class FirestoreGroupRepository(
 
     override suspend fun createGroup(currentUsername: String, name: String, description: String): String {
         // For now, we assume the creator is the only member
-        val groupsCollection = firestore.collection(FirestoreCollections.GROUPS)
+        try {
+            val groupsCollection = firestore.collection(FirestoreCollections.GROUPS)
 
-        val groupId = UUID.randomUUID().toString()
-        val group = Group(
-            id = groupId,
-            name = name,
-            groupPhotoUrl = "${BuildConfig.SUPABASE_URL}storage/v1/object/public/${SupabaseBuckets.GROUP_PHOTOS}/${groupId}.jpg",
-            description = description,
-            creationTimestamp = System.currentTimeMillis(),
-            memberIds = listOf(currentUserId!!),
-            members = listOf(Member(currentUserId!!, currentUsername)),
-            lastMessage = "Created a group!",
-            lastMessageUserId = currentUserId!!,
-            lastMessageUsername = currentUsername,
-            lastMessageTime = System.currentTimeMillis()
-        )
-        groupsCollection.document(groupId).set(group).await()
+            val groupId = UUID.randomUUID().toString()
+            val group = Group(
+                id = groupId,
+                name = name,
+                groupPhotoUrl = "${BuildConfig.SUPABASE_URL}storage/v1/object/public/${SupabaseBuckets.GROUP_PHOTOS}/${groupId}.jpg",
+                description = description,
+                creationTimestamp = System.currentTimeMillis(),
+                memberIds = listOf(currentUserId!!),
+                members = listOf(Member(currentUserId!!, currentUsername)),
+                lastMessage = "Created a group!",
+                lastMessageUserId = currentUserId!!,
+                lastMessageUsername = currentUsername,
+                lastMessageTime = System.currentTimeMillis()
+            )
+            groupsCollection.document(groupId).set(group).await()
 
-        Log.d(TAG, "createGroup: $group")
+            Log.d(TAG, "createGroup: $group")
 
-        return groupId
+            return groupId
+        }
+        catch (e: Exception) {
+            Log.d(TAG, "createGroup: Error creating group: ${e.message}")
+        }
+        return ""
     }
 
     override fun updateGroup(group: Group) {
@@ -112,7 +118,7 @@ class FirestoreGroupRepository(
             groupDoc.set(group)
         }
         catch (e: Exception){
-            Log.d("EXCEPTION", "culprit: ")
+            Log.d(TAG, "Error updating group: ${e.message}")
         }
     }
 
@@ -122,97 +128,127 @@ class FirestoreGroupRepository(
         the spread operator is *, and it's used to pass an array (or array-like collection)
         into a function that expects vararg parameters (i.e., a variable number of arguments).
         */
-        val group = firestore.collection(FirestoreCollections.GROUPS).document(groupId)
-        group.update("memberIds", FieldValue.arrayUnion(*memberIds.toTypedArray()))
-        group.update("members", FieldValue.arrayUnion(*members.toTypedArray()))
+        try {
+            val group = firestore.collection(FirestoreCollections.GROUPS).document(groupId)
+            group.update("memberIds", FieldValue.arrayUnion(*memberIds.toTypedArray()))
+            group.update("members", FieldValue.arrayUnion(*members.toTypedArray()))
+        }
+        catch (e: Exception){
+            Log.d(TAG, "Error adding members: ${e.message}")
+        }
     }
 
     override fun leaveGroup(groupId: String, userId: String, username: String) {
-        val group = firestore.collection(FirestoreCollections.GROUPS).document(groupId)
+        try {
+            val group = firestore.collection(FirestoreCollections.GROUPS).document(groupId)
 
-        val batch = firestore.batch()
-        batch.update(group, "memberIds", FieldValue.arrayRemove(userId))
-        batch.update(group, "members", FieldValue.arrayRemove(Member(userId, username)))
-        batch.commit().addOnSuccessListener {
-            group.get().addOnSuccessListener { snapshot ->
-                val groupObj = snapshot.toObject(Group::class.java)
-                val members = groupObj?.members
-                if (members.isNullOrEmpty()) group.delete()
+            val batch = firestore.batch()
+            batch.update(group, "memberIds", FieldValue.arrayRemove(userId))
+            batch.update(group, "members", FieldValue.arrayRemove(Member(userId, username)))
+            batch.commit().addOnSuccessListener {
+                group.get().addOnSuccessListener { snapshot ->
+                    val groupObj = snapshot.toObject(Group::class.java)
+                    val members = groupObj?.members
+                    if (members.isNullOrEmpty()) group.delete()
+                }
+                    .addOnFailureListener {
+                        Log.e(
+                            "LeaveGroup",
+                            "Failed to check group: ${it.message}"
+                        )
+                    }
             }
-                .addOnFailureListener{ Log.e("LeaveGroup", "Failed to check group: ${it.message}") }
+                .addOnFailureListener {
+                    Log.e(
+                        "LeaveGroup",
+                        "Failed to update group: ${it.message}"
+                    )
+                }
         }
-            .addOnFailureListener{ Log.e("LeaveGroup", "Failed to update group: ${it.message}") }
+        catch (e: Exception) {
+            Log.e(TAG, "leaveGroup: Error leaving group- ${e.message}", )
+        }
 
     }
 
     override fun getAllMessages(groupId: String): StateFlow<List<Message>> {
-        val groupDocument = firestore.collection(FirestoreCollections.GROUPS).document(groupId)
+        try {
+            val groupDocument = firestore.collection(FirestoreCollections.GROUPS).document(groupId)
 
-        ListenerRegistry.register(
-            ListenerRegistry.ListenerKeys.GROUP_CHATS_LISTENER,
-            groupDocument.collection(FirestoreCollections.CHATS)
-                .orderBy("time", Query.Direction.DESCENDING)
-                .addSnapshotListener { snapshot, error ->
-                    if (error != null || snapshot == null) {
-                        Log.e(TAG, "getAllMessages: $error")
-                    }
-                    else {
-                        _messages.value = snapshot.documents.mapNotNull {
-                            it.toObject(Message::class.java)
+            ListenerRegistry.register(
+                ListenerRegistry.ListenerKeys.GROUP_CHATS_LISTENER,
+                groupDocument.collection(FirestoreCollections.CHATS)
+                    .orderBy("time", Query.Direction.DESCENDING)
+                    .addSnapshotListener { snapshot, error ->
+                        if (error != null || snapshot == null) {
+                            Log.e(TAG, "getAllMessages: $error")
+                        } else {
+                            _messages.value = snapshot.documents.mapNotNull {
+                                it.toObject(Message::class.java)
+                            }
                         }
                     }
-                }
-        )
+            )
+        }
+        catch (e: Exception) {
+            Log.e(TAG, "getAllMessages: Error fetching messages- ${e.message}", )
+        }
 
         return messages
     }
 
     override fun sendMessage(groupId: String, senderUsername: String, text: String){
-        val groupDocument = firestore
-            .collection(FirestoreCollections.GROUPS)
-            .document(groupId)
+        try {
+            val groupDocument = firestore
+                .collection(FirestoreCollections.GROUPS)
+                .document(groupId)
 
-        val messagesCollection = groupDocument
-            .collection(FirestoreCollections.CHATS)
+            val messagesCollection = groupDocument
+                .collection(FirestoreCollections.CHATS)
 
-        val time = System.currentTimeMillis()
+            val time = System.currentTimeMillis()
 
-        messagesCollection.add(
-            Message(
-                text = text,
-                senderId = currentUserId!!,
-                senderUsername = senderUsername,
-                time = time
+            messagesCollection.add(
+                Message(
+                    text = text,
+                    senderId = currentUserId!!,
+                    senderUsername = senderUsername,
+                    time = time
+                )
             )
-        )
 
-        groupDocument.update(
-            "lastMessage", text,
-            "lastMessageUserId", currentUserId!!,
-            "lastMessageUsername", senderUsername,
-            "lastMessageTime", time
-        )
+            groupDocument.update(
+                "lastMessage", text,
+                "lastMessageUserId", currentUserId!!,
+                "lastMessageUsername", senderUsername,
+                "lastMessageTime", time
+            )
 
-        CoroutineScope(Dispatchers.IO).launch {
-            val fcmService: FCMService = GlobalContext.get().get() // Somehow getting from Koin
-            val memberIds = groupDocument.get().await().toObject<Group>()?.memberIds
-            Log.d(TAG, "sendMessage: Sending notifications")
+            CoroutineScope(Dispatchers.IO).launch {
+                val fcmService: FCMService = GlobalContext.get().get() // Somehow getting from Koin
+                val memberIds = groupDocument.get().await().toObject<Group>()?.memberIds
+                Log.d(TAG, "sendMessage: Sending notifications")
 
-            if (!memberIds.isNullOrEmpty()) {
-                memberIds.forEach{ memberId ->
-                    if (memberId != currentUserId) {
-                        val userToken = firestore.collection(FirestoreCollections.USERS).document(memberId)
-                            .get().await().toObject<User>()!!.messageToken
-                        sendNotificationWithFetchedToken(
-                            userFcmToken = userToken,
-                            title = senderUsername,
-                            message = text,
-                            fcmService = fcmService
-                        )
+                if (!memberIds.isNullOrEmpty()) {
+                    memberIds.forEach { memberId ->
+                        if (memberId != currentUserId) {
+                            val userToken =
+                                firestore.collection(FirestoreCollections.USERS).document(memberId)
+                                    .get().await().toObject<User>()!!.messageToken
+                            sendNotificationWithFetchedToken(
+                                userFcmToken = userToken,
+                                title = senderUsername,
+                                message = text,
+                                fcmService = fcmService
+                            )
+                        }
                     }
                 }
-            }
 
+            }
+        }
+        catch (e: Exception) {
+            Log.e(TAG, "sendMessage: Error sending message- ${e.message}", )
         }
 
     }

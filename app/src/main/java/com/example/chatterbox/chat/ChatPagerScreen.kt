@@ -59,6 +59,9 @@ import com.example.chatterbox.chat.userChats.presentation.UserChatsRoot
 import com.example.chatterbox.chat.users.presentation.UserProfileRoot
 import com.example.chatterbox.chat.users.presentation.UserViewModel
 import com.example.chatterbox.core.common.ListenerRegistry
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalCoilApi::class)
@@ -73,6 +76,16 @@ fun ChatPagerScreen (
 ) {
     LaunchedEffect(Unit) {
         userViewModel.getCurrentUser()
+        FirebaseMessaging.getInstance().token
+            .addOnSuccessListener { token ->
+                val userId = FirebaseAuth.getInstance().currentUser?.uid
+                if (userId != null) {
+                    FirebaseFirestore.getInstance()
+                        .collection("users")
+                        .document(userId)
+                        .update("messageToken", token)
+                }
+            }
     }
 
     val context = LocalContext.current

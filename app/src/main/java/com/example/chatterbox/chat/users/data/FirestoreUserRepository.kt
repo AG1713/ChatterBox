@@ -24,24 +24,41 @@ class FirestoreUserRepository (
     override val users = _users.asStateFlow()
 
     override suspend fun createUserProfileIfNotExists(user: User) {
-        // We have passed user object here in hopes that later after first login, we will
-        // make the user to set his profile details before going to main screen
-        val userDoc = firestore.collection(FirestoreCollections.USERS).document(user.id)
-        val snapshot = userDoc.get().await()
+        try {
+            // We have passed user object here in hopes that later after first login, we will
+            // make the user to set his profile details before going to main screen
+            val userDoc = firestore.collection(FirestoreCollections.USERS).document(user.id)
+            val snapshot = userDoc.get().await()
 
-        if (!snapshot.exists()){
-            userDoc.set(user)
+            if (!snapshot.exists()) {
+                userDoc.set(user)
+            }
+        }
+        catch (e: Exception) {
+            Log.e(TAG, "createUserProfileIfNotExists: Error creating user profile- ${e.message}", )
         }
     }
 
-    override suspend fun updateMessageToken(userId: String, messageToken: String) {
-        val user = firestore.collection(FirestoreCollections.USERS).document(userId)
-        user.update("messageToken", messageToken).await()
-    }
+//    override suspend fun updateMessageToken(userId: String, messageToken: String) {
+//        try {
+//            val user = firestore.collection(FirestoreCollections.USERS).document(userId)
+//            user.update("messageToken", messageToken).await()
+//        }
+//        catch (e: Exception) {
+//            Log.e(TAG, "updateMessageToken: Error updating message token", )
+//        }
+//    }
 
     override suspend fun getCurrentUserProfile(): User? {
-        return firestore.collection(FirestoreCollections.USERS).document(currentUserId!!).get(Source.SERVER)
-            .await().toObject<User>()
+        try {
+            return firestore.collection(FirestoreCollections.USERS).document(currentUserId!!)
+                .get(Source.SERVER)
+                .await().toObject<User>()
+        }
+        catch (e: Exception) {
+            Log.e(TAG, "getCurrentUserProfile: Error getting current profile", )
+        }
+        return null
     }
 
     override suspend fun getUserProfile(id: String): User? {
@@ -66,7 +83,7 @@ class FirestoreUserRepository (
             userDoc.set(user)
         }
         catch (e: Exception){
-            Log.d("EXCEPTION", "culprit: ")
+            Log.d(TAG, "Error updating user profile- ${e.message}: ")
         }
 
     }

@@ -3,6 +3,7 @@ package com.example.chatterbox.notifications
 import android.app.NotificationManager
 import android.content.Context
 import androidx.core.app.NotificationCompat
+import com.example.chatterbox.R
 import com.example.chatterbox.core.common.DEFAULT_CHANNEL
 import com.example.chatterbox.core.common.FirestoreCollections
 import com.google.firebase.auth.FirebaseAuth
@@ -41,6 +42,7 @@ class MyFirebaseMessagingService: FirebaseMessagingService() {
             .setContentTitle(title)
             .setContentText(message)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setSmallIcon(R.drawable.app_logo)
 
         val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         manager.notify(0, builder.build())

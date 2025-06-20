@@ -48,8 +48,26 @@ class AuthViewModel(
 
     fun createUser(userId: String?, email: String?, userName: String, description: String, onComplete: () -> Unit){
         viewModelScope.launch {
+            var messageToken = ""
+
+            FirebaseMessaging.getInstance().token.addOnSuccessListener {
+                messageToken = it.toString()
+            }
 
             if (userId != null && email != null) {
+                val user = User(
+                    id = userId,
+                    username = userName,
+                    email = email,
+                    description = description,
+                    profilePhotoUrl = "${BuildConfig.SUPABASE_URL}storage/v1/object/public/${SupabaseBuckets.USER_PHOTOS}/${userId}.jpg",
+                    lastActive = System.currentTimeMillis(),
+                    dateCreated = System.currentTimeMillis(),
+                    messageToken = messageToken
+                )
+
+
+
                 _authState.value = AuthState.Loading
                 userRepository.createUserProfileIfNotExists(
                     User(
@@ -63,6 +81,9 @@ class AuthViewModel(
                         messageToken = FirebaseMessaging.getInstance().token.toString()
                     )
                 )
+
+
+
                 _authState.value = AuthState.Idle
                 onComplete()
             }
