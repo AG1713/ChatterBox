@@ -54,8 +54,8 @@ ChatterBox is a real-time Android chat application built using Jetpack Compose, 
 
 ## Screenshots
 
-![Users](screenshots/UserChats.png)
-![Groups](screenshots/Groups.png)
-![Profile](screenshots/Profile.png)
-![Group Chat](screenshots/GroupChat.png)
-![Notification](screenshots/Notification.png)
+![Users](screenshots/UserChats.jpg)
+![Groups](screenshots/Groups.jpg)
+![Profile](screenshots/Profile.jpg)
+![Group Chat](screenshots/GroupChat.jpg)
+![Notification](screenshots/Notification.jpg)

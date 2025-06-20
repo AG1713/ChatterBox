@@ -31,6 +31,7 @@ android {
     buildTypes {
 
         debug {
+            buildConfigField("String", "FCM_BACKEND_URL", "\"${localProperties.getProperty("fcm_backend_url")}\"")
             buildConfigField("String", "SUPABASE_URL", "\"${localProperties.getProperty("supabase_url")}\"")
             buildConfigField("String", "SUPABASE_KEY", "\"${localProperties.getProperty("supabase_anon_key")}\"")
         }
@@ -43,6 +44,7 @@ android {
             )
 
             // Supabase urls
+            buildConfigField("String", "FCM_BACKEND_URL", "\"${localProperties.getProperty("fcm_backend_url")}\"")
             buildConfigField("String", "SUPABASE_URL", "\"${localProperties.getProperty("supabase_url")}\"")
             buildConfigField("String", "SUPABASE_KEY", "\"${localProperties.getProperty("supabase_anon_key")}\"")
         }
